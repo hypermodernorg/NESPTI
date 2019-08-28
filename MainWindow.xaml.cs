@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,13 +19,18 @@ using System.Text.RegularExpressions;
 using iText.Kernel.Pdf.Canvas.Parser.Listener;
 using Microsoft.Win32;
 using System.IO;
+using Ical.Net;
+using Ical.Net.CalendarComponents;
+using Ical.Net.DataTypes;
+using Ical.Net.Serialization;
+using Calendar = Ical.Net.Calendar;
 
 namespace NESPTI
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : MetroWindow
+    public partial class MainWindow
     {
         public MainWindow()
         {
@@ -44,28 +50,67 @@ namespace NESPTI
         public int NumberOfPages(string filename)
         {
             int numberOfPages = 0;
-            ITextExtractionStrategy its = new SimpleTextExtractionStrategy(); 
-            PdfDocument pdf = new PdfDocument(new PdfReader(filename)); 
-            numberOfPages = pdf.GetNumberOfPages(); 
+            ITextExtractionStrategy its = new SimpleTextExtractionStrategy();
+            PdfDocument pdf = new PdfDocument(new PdfReader(filename));
+            numberOfPages = pdf.GetNumberOfPages();
             pdf.Close();
             return numberOfPages;
         }
-        
+
         // Get the page text. Called from a loop to get pages one by one.
         public string PageText(int pageNumber, string filename)
         {
             string pageText = "";
-            ITextExtractionStrategy its = new SimpleTextExtractionStrategy(); 
+            ITextExtractionStrategy its = new SimpleTextExtractionStrategy();
             PdfDocument pdf = new PdfDocument(new PdfReader(filename));
-            
+
             PdfPage page = pdf.GetPage(pageNumber);
-      
+
             pageText = PdfTextExtractor.GetTextFromPage(page, its);
-          
+
             pdf.Close();
             return pageText;
         }
 
+ 
+
+        public void CreateIcalEvent(string startTime, string endTime, string theDate, string raceTrack, string theEvent, string theSeries)
+        {
+            //nesTextBox.AppendText(theDate + startTime + endTime + theEvent + theSeries + raceTrack + "\n");
+            Regex theYearRegex = new Regex(@"(\d{4,4})");
+            Match theYearMatch = theYearRegex.Match(raceTrack);
+
+            // to complete..
+            Regex theMonthRegex = new Regex(@"");
+            Match theMonthMatch = theMonthRegex.Match(theDate);
+
+
+
+
+
+
+            var now = DateTime.Now;
+            var later = now.AddHours(1);
+
+            var e = new CalendarEvent
+            {
+                Start = new CalDateTime(now),
+                End = new CalDateTime(later)
+            };
+            e.Description = raceTrack + " | " + theSeries + " | " + theEvent;
+
+            var calendar = new Calendar();
+            calendar.Events.Add(e);
+
+            var serializer = new CalendarSerializer();
+            var serializedCalendar = serializer.SerializeToString(calendar);
+
+            nesTextBox.AppendText(serializedCalendar + "\n");
+
+
+
+
+        }
 
 
         public void Button_Click(object sender, RoutedEventArgs e)
@@ -97,17 +142,65 @@ namespace NESPTI
 
                 List<string> lessLines = LessLines(lines); // remove some of the unneeded lines.
 
+                string raceTrack = lessLines[0]; // The Race Track/Series
+
                 List<List<string>> allDays = DailySchedule(lessLines); // all events separated by day
 
                 // append each line to the textBox.
+
+
+
+           
+                Regex filter1 = new Regex(@"((\d{1,2}:\d{2,2} \w{2,2}) \(*(\d{1,2}:\d{1,2} \w{2,2}))\)? (\S*) (.*)"); // matches events with open and close times -- 20190827 - Now accounts for parentheses
+                Regex filter2 = new Regex(@"((^\d{1,2}:\d{2,2} \w{2,2}) (?!\(?\d{1,2}:\d{2,2} \w{2,2})(\S*)(.*))"); // matches events with just an open time
+
+                //$input = '06/10/2011 19:00:02'; 
+                //$date = strtotime($input);
+                //echo date('d/M/Y h:i:s', $date);
+
                 foreach (List<string> oneDay in allDays)
                 {
-                    //nesTextBox.AppendText(space);
+                    
+                    var theDate = oneDay[0]; 
+                    nesTextBox.AppendText("\n" + theDate + "\n");
+
                     foreach (string oneDayLine in oneDay)
                     {
+                        string startTime;
+                        string endTime;
+                        string theEvent;
+                        string theSeries;
 
+                        if (oneDayLine.Contains("ARCA") || oneDayLine.Contains("NGOTS") || oneDayLine.Contains("MENCS") || oneDayLine.Contains("NXS") || oneDayLine.Contains("MKNPS"))
+                        {
 
-                        nesTextBox.AppendText(oneDayLine + "\n");
+                            if (oneDayLine.Contains("PRACTICE") || oneDayLine.Contains("GARAGE") || oneDayLine.Contains("RACE") || oneDayLine.Contains("QUALIFYING"))
+                            {
+                                Match openAndClose = filter1.Match(oneDayLine);
+                                Match openOnly = filter2.Match(oneDayLine);
+
+                                if (openOnly.Success)
+                                {
+                                    startTime = openOnly.Groups[2].ToString();
+                                    endTime = "";
+                                    theSeries = openOnly.Groups[3].ToString();
+                                    theEvent = openOnly.Groups[4].ToString();
+                                    //nesTextBox.AppendText(startTime + theSeries + theEvent + "\n");
+                                    
+                                    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
+                                }
+                                if (openAndClose.Success)
+                                {
+                                    startTime = openAndClose.Groups[2].ToString();
+                                    endTime = openAndClose.Groups[3].ToString();
+                                    theSeries = openAndClose.Groups[4].ToString();
+                                    theEvent = openAndClose.Groups[5].ToString();
+                                    //nesTextBox.AppendText(startTime + endTime + theSeries + theEvent + "\n");
+
+                                    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -118,7 +211,6 @@ namespace NESPTI
         public List<List<string>> DailySchedule(List<string> lessLines)
         {
 
-            string trackStr = lessLines[0];
             List<List<string>> allDays = new List<List<string>>(); // outer list containing all days
             List<string> oneDay = new List<string>(); // inner list containing one day
 
@@ -172,16 +264,14 @@ namespace NESPTI
             Regex filter1 = new Regex(@"\d{1,2}\/\d{1,2}\/\d{4} (?=\()");
             Regex filter2 = new Regex(@"When vehicles are not moving"); // remove vehicles not moving line
 
+
+
             foreach (string line in lines)
             {
                 Match match1 = filter1.Match(line);
                 Match match2 = filter2.Match(line);
 
-                if (match1.Success)
-                {
-                    //MessageBox.Show(line);
 
-                }
                 if (!match1.Success && !match2.Success)
                 {
                     lessLines.Add(line);
