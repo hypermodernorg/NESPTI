@@ -49,6 +49,7 @@ namespace NESPTI
         // get the number of pages
 
         static  Calendar _calendar = new Calendar();
+        
         public int NumberOfPages(string filename)
         {
             int numberOfPages = 0;
@@ -93,7 +94,7 @@ namespace NESPTI
                 Start = new CalDateTime(now),
   
             };
-
+            e.Summary = theSeries + " | " + theEvent;
             if (endTime != "")
             {
                 var later = DateTime.Parse(theDate + " " + theYearMatch + " " + endTime);
@@ -112,6 +113,7 @@ namespace NESPTI
         {
             string theText = "";
             nesTextBox.Text = "";
+            string raceTrack = "";
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "PDF Files (*.pdf)|*.pdf",
@@ -137,7 +139,7 @@ namespace NESPTI
 
                 List<string> lessLines = LessLines(lines); // remove some of the unneeded lines.
 
-                string raceTrack = lessLines[0]; // The Race Track/Series
+                raceTrack = lessLines[0]; // The Race Track/Series
 
                 List<List<string>> allDays = DailySchedule(lessLines); // all events separated by day
 
@@ -199,6 +201,10 @@ namespace NESPTI
                     }
                 }
             }
+
+            //_calendar.Name = raceTrack;
+            _calendar.AddProperty("X-WR-CALNAME", raceTrack);
+            
             var serializer = new CalendarSerializer();
             var serializedCalendar = serializer.SerializeToString(_calendar);
 
