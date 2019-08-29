@@ -50,7 +50,6 @@ namespace NESPTI
         public int NumberOfPages(string filename)
         {
             int numberOfPages = 0;
-            ITextExtractionStrategy its = new SimpleTextExtractionStrategy();
             PdfDocument pdf = new PdfDocument(new PdfReader(filename));
             numberOfPages = pdf.GetNumberOfPages();
             pdf.Close();
@@ -76,40 +75,60 @@ namespace NESPTI
 
         public void CreateIcalEvent(string startTime, string endTime, string theDate, string raceTrack, string theEvent, string theSeries)
         {
+     
             //nesTextBox.AppendText(theDate + startTime + endTime + theEvent + theSeries + raceTrack + "\n");
+
+
+            // --  Begin create dateTime: 
+            //     Research: DateTime.Parse()
+
+            // 1.  First, lets get the YEAR
             Regex theYearRegex = new Regex(@"(\d{4,4})");
-            Match theYearMatch = theYearRegex.Match(raceTrack);
+            Match theYearMatch = theYearRegex.Match(raceTrack); 
 
-            // to complete..
-            Regex theMonthRegex = new Regex(@"");
-            Match theMonthMatch = theMonthRegex.Match(theDate);
+            // 2.   Next, get the MONTH and covert it to a number. Example: April to 4.
+            Regex theMonthRegex = new Regex(@"\w*, (\w*) (\d*)"); // get the month and day in groups
+            Match theMonthMatch = theMonthRegex.Match(theDate); // convert month
+            var theMonthString = theMonthMatch.Groups[1];
+
+            // 3.   Get the DAY. Example: 15 in 15th of July.
+            var theDay = theMonthMatch.Groups[2];
+
+            // 4.   Get the TIME and convert it to military format. Example: 2.00 PM   to 1400
 
 
+            // 5.   Put it all together.
 
-
-
-
-            var now = DateTime.Now;
-            var later = now.AddHours(1);
+            //--------------------------------------------------------------------//
+            //var now = DateTime.Now;
+            var now = DateTime.Parse(theDate + " " + theYearMatch + " " + startTime);
 
             var e = new CalendarEvent
             {
                 Start = new CalDateTime(now),
-                End = new CalDateTime(later)
+  
             };
+
+            if (endTime != "")
+            {
+                var later = DateTime.Parse(theDate + " " + theYearMatch + " " + endTime);
+                e.End = new CalDateTime(later);
+            }
+            
+            //e.Name = raceTrack + " | " + theSeries + " | " + theEvent;
+
+            //e.Name = "Test";
             e.Description = raceTrack + " | " + theSeries + " | " + theEvent;
 
             var calendar = new Calendar();
+      
             calendar.Events.Add(e);
 
             var serializer = new CalendarSerializer();
             var serializedCalendar = serializer.SerializeToString(calendar);
 
             nesTextBox.AppendText(serializedCalendar + "\n");
-
-
-
-
+            //-------------------------------------------------------------------//
         }
 
 
@@ -162,7 +181,7 @@ namespace NESPTI
                 {
                     
                     var theDate = oneDay[0]; 
-                    nesTextBox.AppendText("\n" + theDate + "\n");
+                    //nesTextBox.AppendText("\n" + theDate + "\n");
 
                     foreach (string oneDayLine in oneDay)
                     {
