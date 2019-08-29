@@ -37,7 +37,7 @@ namespace NESPTI
             InitializeComponent();
 
         }
-
+        // patch1
         // bugs:    20190824 - When there are more then one page, results are duplicated.
         //          -- Notes - The issue occurs before any filters.
         //          -- 201926 - Fixed: Solved in two steps. 1. Processed each page separately. 2. Added new line after each page
