@@ -23,6 +23,7 @@ using Ical.Net;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
 using Ical.Net.Serialization;
+using MahApps.Metro;
 using Calendar = Ical.Net.Calendar;
 
 namespace NESPTI
@@ -34,11 +35,12 @@ namespace NESPTI
     {
 
         // Todo:    1. Handle the Garage open and close events separately. 20190830 - Completed.
-        // Todo:    2. Change out series symbols with their respective names.
+        // Todo:    2. Change out series symbols with their respective names. 20190830 - Completed.
         // Todo:    3. Check to see if i need only the start times for races. practices, and qualifying.
         // Todo:    4. Testing and bug fixes.
         // Todo:    5. Polish it up with perhaps parameters that allow a chosen directory.
         // Todo:    6. The future... do multiple files at once.
+
         public MainWindow()
         {
             InitializeComponent();
@@ -91,22 +93,53 @@ namespace NESPTI
             var e = new CalendarEvent
             {
                 Start = new CalDateTime(now),
-  
+                Summary = ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent),
+                Description = raceTrack + " | " + ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent),
             };
-            e.Summary = theSeries + " | " + theEvent;
+
             if (endTime != "")
             {
                 var later = DateTime.Parse(theDate + " " + theYearMatch + " " + endTime);
                 e.End = new CalDateTime(later);
             }
             
-            e.Description = raceTrack + " | " + theSeries + " | " + theEvent;
+            //e.Description = raceTrack + " | " + ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent);
 
-      
+            //nesTextBox.AppendText(ChangeSeriesSymbols(theSeries) + "\n\n");
             _calendar.Events.Add(e);
 
         }
 
+        public string ChangeSeriesSymbols(string toChange)
+        {
+            var seriesDictionary = new Dictionary<string, string>
+            {
+                { "NKNPS-E", "K & N Series" },
+                { "ARCA", "Arca Series" },
+                { "NGOTS", "Truck Series" },
+                { "NXS", "Xfinity Series" },
+                { "MENCS", "Cup Series" }
+            };
+            string theChanged = toChange;
+            foreach (KeyValuePair<string, string> entry in seriesDictionary)
+            {
+               
+                if (toChange.Contains(entry.Key))
+                {
+                    theChanged = toChange.Replace(entry.Key, entry.Value);
+                    //nesTextBox.AppendText("change detected");
+                }
+            }
+
+         
+            return theChanged;
+
+            //NKNPS - E is the K & N Series
+            //ARCA is the Arca Series
+            //NGOTS is the Truck Series
+            //NXS is the Xfinity Series
+            //MENCS is the Cup Series.
+        }
 
         public void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -191,7 +224,6 @@ namespace NESPTI
                                     {
                                         CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
                                     }
-                                    
                                 }
                             }
                         }
@@ -199,7 +231,6 @@ namespace NESPTI
                 }
             }
 
-            //_calendar.Name = raceTrack;
             _calendar.AddProperty("X-WR-CALNAME", raceTrack);
 
             var serializer = new CalendarSerializer();
