@@ -143,18 +143,10 @@ namespace NESPTI
 
                 List<List<string>> allDays = DailySchedule(lessLines); // all events separated by day
 
-                // append each line to the textBox.
-
-
-
-           
                 Regex filter1 = new Regex(@"((\d{1,2}:\d{2,2} \w{2,2}) \(*(\d{1,2}:\d{1,2} \w{2,2}))\)? (\S*) (.*)"); // matches events with open and close times -- 20190827 - Now accounts for parentheses
                 Regex filter2 = new Regex(@"((^\d{1,2}:\d{2,2} \w{2,2}) (?!\(?\d{1,2}:\d{2,2} \w{2,2})(\S*)(.*))"); // matches events with just an open time
-
-                //$input = '06/10/2011 19:00:02'; 
-                //$date = strtotime($input);
-                //echo date('d/M/Y h:i:s', $date);
-
+                // ((\d{1,2}:\d{2,2} \w{2,2})( \(*(\d{1,2}:\d{1,2} \w{2,2}))*)\)? (\S*(, \S*)*) (.*)
+                Regex filter3 = new Regex(@"((\d{1,2}:\d{2,2} \w{2,2})( \(*(\d{1,2}:\d{1,2} \w{2,2}))*)\)? ([\w-]+(, [\w-]+)*) (.*)");
                 foreach (List<string> oneDay in allDays)
                 {
                     
@@ -175,27 +167,40 @@ namespace NESPTI
                             {
                                 Match openAndClose = filter1.Match(oneDayLine);
                                 Match openOnly = filter2.Match(oneDayLine);
+                                Match masterMatch = filter3.Match(oneDayLine);
 
-                                if (openOnly.Success)
+                                // attempt to unite the two filters into one, while accounting for multiple series per event.     
+                                if (masterMatch.Success)
                                 {
-                                    startTime = openOnly.Groups[2].ToString();
-                                    endTime = "";
-                                    theSeries = openOnly.Groups[3].ToString();
-                                    theEvent = openOnly.Groups[4].ToString();
-                                    //nesTextBox.AppendText(startTime + theSeries + theEvent + "\n");
+                                    startTime = masterMatch.Groups[2].ToString();
+                                    endTime = masterMatch.Groups[3].ToString();
+                                    theSeries = masterMatch.Groups[5].ToString();
+                                    theEvent = masterMatch.Groups[7].ToString();
+                                        
+                                    //nesTextBox.AppendText(startTime + endTime + "\t\t" + theSeries + "\t\t" + theEvent + "\n");
+                                    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
+                                }
+
+                                //if (openOnly.Success)
+                                //{
+                                //    startTime = openOnly.Groups[2].ToString();
+                                //    endTime = "";
+                                //    theSeries = openOnly.Groups[3].ToString();
+                                //    theEvent = openOnly.Groups[4].ToString();
+                                //    nesTextBox.AppendText(startTime + theSeries + theEvent + "\n");
                                     
-                                    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
-                                }
-                                if (openAndClose.Success)
-                                {
-                                    startTime = openAndClose.Groups[2].ToString();
-                                    endTime = openAndClose.Groups[3].ToString();
-                                    theSeries = openAndClose.Groups[4].ToString();
-                                    theEvent = openAndClose.Groups[5].ToString();
-                                    //nesTextBox.AppendText(startTime + endTime + theSeries + theEvent + "\n");
+                                //    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
+                                //}
+                                //if (openAndClose.Success)
+                                //{
+                                //    startTime = openAndClose.Groups[2].ToString();
+                                //    endTime = openAndClose.Groups[3].ToString();
+                                //    theSeries = openAndClose.Groups[4].ToString();
+                                //    theEvent = openAndClose.Groups[5].ToString();
+                                //    nesTextBox.AppendText(startTime + endTime + theSeries + theEvent + "\n");
 
-                                    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
-                                }
+                                //    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
+                                //}
                             }
                         }
                     }
@@ -204,11 +209,12 @@ namespace NESPTI
 
             //_calendar.Name = raceTrack;
             _calendar.AddProperty("X-WR-CALNAME", raceTrack);
-            
+
             var serializer = new CalendarSerializer();
             var serializedCalendar = serializer.SerializeToString(_calendar);
 
-            nesTextBox.AppendText(serializedCalendar + "\n");
+            nesTextBox.AppendText(serializedCalendar);
+            File.WriteAllText(@"c:\NESPTI\" + raceTrack + ".ics", serializedCalendar);
         }
 
 
@@ -260,7 +266,6 @@ namespace NESPTI
 
 
         // Function to remove a few unneeded lines.
-        // May not be needed in the future, but its nice to exclude them for now.
         public List<string> LessLines(List<string> lines)
         {
             List<string> lessLines = new List<string>();
