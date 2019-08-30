@@ -32,19 +32,18 @@ namespace NESPTI
     /// </summary>
     public partial class MainWindow
     {
+
+        // Todo:    1. Handle the Garage open and close events separately. 20190830 - Completed.
+        // Todo:    2. Change out series symbols with their respective names.
+        // Todo:    3. Check to see if i need only the start times for races. practices, and qualifying.
+        // Todo:    4. Testing and bug fixes.
+        // Todo:    5. Polish it up with perhaps parameters that allow a chosen directory.
+        // Todo:    6. The future... do multiple files at once.
         public MainWindow()
         {
             InitializeComponent();
 
         }
-        // patch2
-        // bugs:    20190824 - When there are more then one page, results are duplicated.
-        //          -- Notes - The issue occurs before any filters.
-        //          -- 201926 - Fixed: Solved in two steps. 1. Processed each page separately. 2. Added new line after each page
-        // bugs:    20190824 - Last line is missing.
-        //          -- 20190824 - Fixed: Issue due to vaguely defined regEx - filter1   
-        // bugs:    20190824 - Every day after the first day, is appended at the end of the previous string list.
-        //          -- 20191824 - Fixed: Issue due to inverted logic.
 
         // get the number of pages
 
@@ -143,8 +142,8 @@ namespace NESPTI
 
                 List<List<string>> allDays = DailySchedule(lessLines); // all events separated by day
 
-                Regex filter1 = new Regex(@"((\d{1,2}:\d{2,2} \w{2,2}) \(*(\d{1,2}:\d{1,2} \w{2,2}))\)? (\S*) (.*)"); // matches events with open and close times -- 20190827 - Now accounts for parentheses
-                Regex filter2 = new Regex(@"((^\d{1,2}:\d{2,2} \w{2,2}) (?!\(?\d{1,2}:\d{2,2} \w{2,2})(\S*)(.*))"); // matches events with just an open time
+                //Regex filter1 = new Regex(@"((\d{1,2}:\d{2,2} \w{2,2}) \(*(\d{1,2}:\d{1,2} \w{2,2}))\)? (\S*) (.*)"); // matches events with open and close times -- 20190827 - Now accounts for parentheses
+                //Regex filter2 = new Regex(@"((^\d{1,2}:\d{2,2} \w{2,2}) (?!\(?\d{1,2}:\d{2,2} \w{2,2})(\S*)(.*))"); // matches events with just an open time
                 // ((\d{1,2}:\d{2,2} \w{2,2})( \(*(\d{1,2}:\d{1,2} \w{2,2}))*)\)? (\S*(, \S*)*) (.*)
                 Regex filter3 = new Regex(@"((\d{1,2}:\d{2,2} \w{2,2})( \(*(\d{1,2}:\d{1,2} \w{2,2}))*)\)? ([\w-]+(, [\w-]+)*) (.*)");
                 foreach (List<string> oneDay in allDays)
@@ -165,42 +164,35 @@ namespace NESPTI
 
                             if (oneDayLine.Contains("PRACTICE") || oneDayLine.Contains("GARAGE") || oneDayLine.Contains("RACE") || oneDayLine.Contains("QUALIFYING"))
                             {
-                                Match openAndClose = filter1.Match(oneDayLine);
-                                Match openOnly = filter2.Match(oneDayLine);
+                                //Match openAndClose = filter1.Match(oneDayLine);
+                                //Match openOnly = filter2.Match(oneDayLine);
                                 Match masterMatch = filter3.Match(oneDayLine);
 
                                 // attempt to unite the two filters into one, while accounting for multiple series per event.     
                                 if (masterMatch.Success)
                                 {
                                     startTime = masterMatch.Groups[2].ToString();
-                                    endTime = masterMatch.Groups[3].ToString();
+                                    endTime = masterMatch.Groups[4].ToString(); // Not group 3 because it may contain a "(".
                                     theSeries = masterMatch.Groups[5].ToString();
                                     theEvent = masterMatch.Groups[7].ToString();
-                                        
+
                                     //nesTextBox.AppendText(startTime + endTime + "\t\t" + theSeries + "\t\t" + theEvent + "\n");
-                                    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
-                                }
+                                    if (oneDayLine.Contains("GARAGE OPEN"))
+                                    {
+                                        CreateIcalEvent(startTime, "", theDate, raceTrack, theEvent, theSeries);
 
-                                //if (openOnly.Success)
-                                //{
-                                //    startTime = openOnly.Groups[2].ToString();
-                                //    endTime = "";
-                                //    theSeries = openOnly.Groups[3].ToString();
-                                //    theEvent = openOnly.Groups[4].ToString();
-                                //    nesTextBox.AppendText(startTime + theSeries + theEvent + "\n");
+                                        if (endTime != "") // If the GARAGE OPEN even contains an endTime;
+                                        {
+                                            CreateIcalEvent(endTime, "", theDate, raceTrack, "GARAGE CLOSES", theSeries);
+                                        }
+                                        
+                                    }
+                                    else
+                                    {
+                                        CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
+                                    }
                                     
-                                //    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
-                                //}
-                                //if (openAndClose.Success)
-                                //{
-                                //    startTime = openAndClose.Groups[2].ToString();
-                                //    endTime = openAndClose.Groups[3].ToString();
-                                //    theSeries = openAndClose.Groups[4].ToString();
-                                //    theEvent = openAndClose.Groups[5].ToString();
-                                //    nesTextBox.AppendText(startTime + endTime + theSeries + theEvent + "\n");
-
-                                //    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
-                                //}
+                                }
                             }
                         }
                     }
