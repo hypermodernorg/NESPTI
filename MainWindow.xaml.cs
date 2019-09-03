@@ -25,6 +25,8 @@ using Ical.Net.DataTypes;
 using Ical.Net.Serialization;
 using MahApps.Metro;
 using Calendar = Ical.Net.Calendar;
+using System.Windows.Forms;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace NESPTI
 {
@@ -38,13 +40,15 @@ namespace NESPTI
         // Todo:    2. Change out series symbols with their respective names. 20190830 - Completed.
         // Todo:    3. Check to see if i need only the start times for races. practices, and qualifying.
         // Todo:    4. Testing and bug fixes.
+        // Todo:    -- 20190902 - Bug found when converting more then one pdf. Need to flush variables. -- 20190902 - Fixed
         // Todo:    5. Polish it up with perhaps parameters that allow a chosen directory.
+        // Todo:    -- 20190830 - Added directory setting.
         // Todo:    6. The future... do multiple files at once.
 
         public MainWindow()
         {
             InitializeComponent();
-
+     
         }
 
         // get the number of pages
@@ -126,30 +130,26 @@ namespace NESPTI
                
                 if (toChange.Contains(entry.Key))
                 {
-                    theChanged = toChange.Replace(entry.Key, entry.Value);
+                    theChanged = theChanged.Replace(entry.Key, entry.Value);
                     //nesTextBox.AppendText("change detected");
                 }
             }
 
-         
             return theChanged;
 
-            //NKNPS - E is the K & N Series
-            //ARCA is the Arca Series
-            //NGOTS is the Truck Series
-            //NXS is the Xfinity Series
-            //MENCS is the Cup Series.
         }
 
         public void Button_Click(object sender, RoutedEventArgs e)
         {
+            
             string theText = "";
             nesTextBox.Text = "";
             string raceTrack = "";
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "PDF Files (*.pdf)|*.pdf",
-                InitialDirectory = @"c:\NESPTI\"
+                //InitialDirectory = @"c:\NESPTI\"
+                InitialDirectory = Properties.Settings.Default.sourcePath,
             };
 
             if (openFileDialog.ShowDialog() == true)
@@ -195,7 +195,7 @@ namespace NESPTI
                         if (oneDayLine.Contains("ARCA") || oneDayLine.Contains("NGOTS") || oneDayLine.Contains("MENCS") || oneDayLine.Contains("NXS") || oneDayLine.Contains("MKNPS"))
                         {
 
-                            if (oneDayLine.Contains("PRACTICE") || oneDayLine.Contains("GARAGE") || oneDayLine.Contains("RACE") || oneDayLine.Contains("QUALIFYING"))
+                            if (oneDayLine.Contains("PRACTICE") || oneDayLine.Contains("GARAGE OPEN") || oneDayLine.Contains("RACE") || oneDayLine.Contains("QUALIFYING"))
                             {
                                 //Match openAndClose = filter1.Match(oneDayLine);
                                 //Match openOnly = filter2.Match(oneDayLine);
@@ -237,7 +237,11 @@ namespace NESPTI
             var serializedCalendar = serializer.SerializeToString(_calendar);
 
             nesTextBox.AppendText(serializedCalendar);
-            File.WriteAllText(@"c:\NESPTI\" + raceTrack + ".ics", serializedCalendar);
+            //myString = myString.Substring(0, myString.Length-3);
+            string saveFileName= openFileDialog.FileName.ToString()
+                .Substring(0, openFileDialog.FileName.ToString().Length - 4);
+            File.WriteAllText(@saveFileName + ".ics", serializedCalendar);
+            _calendar.Dispose();
         }
 
 
@@ -312,6 +316,26 @@ namespace NESPTI
             }
 
             return lessLines;
+        }
+
+        //sourcePath
+
+
+        private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            using (var fldrDlg = new FolderBrowserDialog())
+            {
+                //fldrDlg.Filter = "Png Files (*.png)|*.png";
+                //fldrDlg.Filter = "Excel Files (*.xls, *.xlsx)|*.xls;*.xlsx|CSV Files (*.csv)|*.csv"
+                fldrDlg.SelectedPath = Properties.Settings.Default.sourcePath;
+
+                if (fldrDlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                 
+                    Properties.Settings.Default.sourcePath = fldrDlg.SelectedPath;
+                    Properties.Settings.Default.Save();
+                }
+            }
         }
     }
 }
