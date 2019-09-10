@@ -41,7 +41,7 @@ namespace NESPTI
         // Todo:    3. Check to see if i need only the start times for races. practices, and qualifying.
         // Todo:    4. Testing and bug fixes.
         // Todo:    -- 20190902 - Bug found when converting more then one pdf. Need to flush variables. -- 20190902 - Fixed
-        // Todo:    5. Polish it up with perhaps parameters that allow a chosen directory.
+        // Todo:    5. Polish it up with perhaps parameters that allow a chosen directory. -- Completed - Directory user parameter added.
         // Todo:    -- 20190830 - Added directory setting.
         // Todo:    6. The future... do multiple files at once.
 
