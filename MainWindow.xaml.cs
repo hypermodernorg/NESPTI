@@ -36,13 +36,12 @@ namespace NESPTI
     public partial class MainWindow
     {
 
-        // Todo:    1. Handle the Garage open and close events separately. 20190830 - Completed.
-        // Todo:    2. Change out series symbols with their respective names. 20190830 - Completed.
-        // Todo:    3. Check to see if i need only the start times for races. practices, and qualifying.
+        // Todo:    1. Add timezone support.
+        // Todo:    2. Correctly handle event end times that are in parentheses, which should be discarded.
+        // Todo:    3. Play with the garage open and close events end times. i.e... 15 minutes.
+        // Todo:    --  Added, however doesn't display properly (text not fitting in small 15 minute space) in all views. Might add this as a user parameter instead of hardcoded time.
         // Todo:    4. Testing and bug fixes.
-        // Todo:    -- 20190902 - Bug found when converting more then one pdf. Need to flush variables. -- 20190902 - Fixed
-        // Todo:    5. Polish it up with perhaps parameters that allow a chosen directory. -- Completed - Directory user parameter added.
-        // Todo:    -- 20190830 - Added directory setting.
+        // Todo:    5. Polish it up.
         // Todo:    6. The future... do multiple files at once.
 
         public MainWindow()
@@ -53,7 +52,8 @@ namespace NESPTI
 
         // get the number of pages
 
-        static  Calendar _calendar = new Calendar();
+        static Calendar _calendar = new Calendar();
+        static string _timeZone = "Eastern Standard Time";
         
         public int NumberOfPages(string filename)
         {
@@ -93,18 +93,23 @@ namespace NESPTI
             var theDay = theMonthMatch.Groups[2];
             var now = DateTime.Parse(theDate + " " + theYearMatch + " " + startTime);
 
-
             var e = new CalendarEvent
             {
-                Start = new CalDateTime(now),
+                Start = new CalDateTime(now, _timeZone),
                 Summary = ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent),
                 Description = raceTrack + " | " + ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent),
             };
 
+
             if (endTime != "")
             {
                 var later = DateTime.Parse(theDate + " " + theYearMatch + " " + endTime);
-                e.End = new CalDateTime(later);
+                e.End = new CalDateTime(later, _timeZone);
+            }
+
+            if (theEvent.Contains("GARAGE OPEN") || theEvent.Contains("GARAGE CLOSE"))
+            {
+                e.End = new CalDateTime(now.AddMinutes(15), _timeZone);
             }
             
             //e.Description = raceTrack + " | " + ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent);
@@ -139,6 +144,31 @@ namespace NESPTI
 
         }
 
+        public string TimeZone(string theText)
+        {
+            string nodaTimeZone = "";
+            var tzDictionary = new Dictionary<string, string>
+            {
+                { "Eastern Standard Time", "America/Indiana/Indianapolis" },
+                { "Central Standard Time", "US/Central" },
+                { "Pacific Standard Time", "US/Pacific" },
+                { "Mountain Standard Time", "America/Denver" }
+           
+            };
+
+            foreach (KeyValuePair<string, string> entry in tzDictionary)
+            {
+                if (theText.Contains(entry.Key))
+                {
+                    nodaTimeZone = entry.Value;
+                }
+
+            }
+
+            _timeZone = nodaTimeZone;
+            return nodaTimeZone;
+        }
+
         public void Button_Click(object sender, RoutedEventArgs e)
         {
             
@@ -148,7 +178,6 @@ namespace NESPTI
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "PDF Files (*.pdf)|*.pdf",
-                //InitialDirectory = @"c:\NESPTI\"
                 InitialDirectory = Properties.Settings.Default.sourcePath,
             };
 
@@ -161,8 +190,10 @@ namespace NESPTI
                 for (int i = 1; i <= numberOfPages; i++)
                 {
                     theText += PageText(i, openFileDialog.FileName.ToString()) + "\n";
-                    //nesTextBox.Text = theText;
                 }
+
+                var nadaTomeTimeZone = TimeZone(theText);
+                
 
                 List<string> lines = theText.Split(
                     new[] { "\r\n", "\r", "\n" },
@@ -212,6 +243,7 @@ namespace NESPTI
                                     //nesTextBox.AppendText(startTime + endTime + "\t\t" + theSeries + "\t\t" + theEvent + "\n");
                                     if (oneDayLine.Contains("GARAGE OPEN"))
                                     {
+                                     
                                         CreateIcalEvent(startTime, "", theDate, raceTrack, theEvent, theSeries);
 
                                         if (endTime != "") // If the GARAGE OPEN even contains an endTime;
@@ -232,6 +264,10 @@ namespace NESPTI
             }
 
             _calendar.AddProperty("X-WR-CALNAME", raceTrack);
+            //_calendar.AddTimeZone(new VTimeZone("America/New_York"));
+
+
+          
 
             var serializer = new CalendarSerializer();
             var serializedCalendar = serializer.SerializeToString(_calendar);
