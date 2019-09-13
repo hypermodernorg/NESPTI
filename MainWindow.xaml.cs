@@ -37,12 +37,16 @@ namespace NESPTI
     {
 
         // Todo:    1. Add timezone support.
+        // Todo:    -- 20190910 - Progress made for four timezones. Need more research for other tracks and their respective timezones. 
         // Todo:    2. Correctly handle event end times that are in parentheses, which should be discarded.
         // Todo:    3. Play with the garage open and close events end times. i.e... 15 minutes.
+        // Todo:    -- 20190910 - Completed, but needs testing.
         // Todo:    --  Added, however doesn't display properly (text not fitting in small 15 minute space) in all views. Might add this as a user parameter instead of hardcoded time.
-        // Todo:    4. Testing and bug fixes.
-        // Todo:    5. Polish it up.
-        // Todo:    6. The future... do multiple files at once.
+        // Todo:    4. System Tray and hide form function to simulate background process.
+        // Todo:    -- 20190912 - Completed
+        // Todo:    5. Run via command line with flags.
+        // Todo:    6. While running in the background, check for new files and convert.
+        // Todo:    7. Handle calendar updates.
 
         public MainWindow()
         {
@@ -50,11 +54,12 @@ namespace NESPTI
      
         }
 
-        // get the number of pages
+        
 
         static Calendar _calendar = new Calendar();
         static string _timeZone = "Eastern Standard Time";
-        
+
+        // get the number of pages
         public int NumberOfPages(string filename)
         {
             int numberOfPages = 0;
@@ -70,11 +75,8 @@ namespace NESPTI
             string pageText = "";
             ITextExtractionStrategy its = new SimpleTextExtractionStrategy();
             PdfDocument pdf = new PdfDocument(new PdfReader(filename));
-
             PdfPage page = pdf.GetPage(pageNumber);
-
             pageText = PdfTextExtractor.GetTextFromPage(page, its);
-
             pdf.Close();
             return pageText;
         }
@@ -84,12 +86,10 @@ namespace NESPTI
         public void CreateIcalEvent(string startTime, string endTime, string theDate, string raceTrack, string theEvent, string theSeries)
         {
             Regex theYearRegex = new Regex(@"(\d{4,4})");
-            Match theYearMatch = theYearRegex.Match(raceTrack); 
-
+            Match theYearMatch = theYearRegex.Match(raceTrack);
             Regex theMonthRegex = new Regex(@"\w*, (\w*) (\d*)"); // get the month and day in groups
             Match theMonthMatch = theMonthRegex.Match(theDate); // convert month
             var theMonthString = theMonthMatch.Groups[1];
-
             var theDay = theMonthMatch.Groups[2];
             var now = DateTime.Parse(theDate + " " + theYearMatch + " " + startTime);
 
@@ -112,9 +112,6 @@ namespace NESPTI
                 e.End = new CalDateTime(now.AddMinutes(15), _timeZone);
             }
             
-            //e.Description = raceTrack + " | " + ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent);
-
-            //nesTextBox.AppendText(ChangeSeriesSymbols(theSeries) + "\n\n");
             _calendar.Events.Add(e);
 
         }
@@ -171,115 +168,115 @@ namespace NESPTI
 
         public void Button_Click(object sender, RoutedEventArgs e)
         {
-            
-            string theText = "";
-            nesTextBox.Text = "";
-            string raceTrack = "";
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = "PDF Files (*.pdf)|*.pdf",
-                InitialDirectory = Properties.Settings.Default.sourcePath,
-            };
+            ConverterMain();
+            //    string theText = "";
+            //    nesTextBox.Text = "";
+            //    string raceTrack = "";
+            //    var openFileDialog = new OpenFileDialog
+            //    {
+            //        Filter = "PDF Files (*.pdf)|*.pdf",
+            //        InitialDirectory = Properties.Settings.Default.sourcePath,
+            //    };
 
-            if (openFileDialog.ShowDialog() == true)
-            {
-                // Get the number of pages.
-                var numberOfPages = NumberOfPages(openFileDialog.FileName.ToString());
+            //    if (openFileDialog.ShowDialog() == true)
+            //    {
+            //        // Get the number of pages.
+            //        var numberOfPages = NumberOfPages(openFileDialog.FileName.ToString());
 
-                // Get the text, line by line
-                for (int i = 1; i <= numberOfPages; i++)
-                {
-                    theText += PageText(i, openFileDialog.FileName.ToString()) + "\n";
-                }
+            //        // Get the text, line by line
+            //        for (int i = 1; i <= numberOfPages; i++)
+            //        {
+            //            theText += PageText(i, openFileDialog.FileName.ToString()) + "\n";
+            //        }
 
-                var nadaTomeTimeZone = TimeZone(theText);
-                
-
-                List<string> lines = theText.Split(
-                    new[] { "\r\n", "\r", "\n" },
-                    StringSplitOptions.None
-                ).ToList();
-
-                List<string> lessLines = LessLines(lines); // remove some of the unneeded lines.
-
-                raceTrack = lessLines[0]; // The Race Track/Series
-
-                List<List<string>> allDays = DailySchedule(lessLines); // all events separated by day
-
-                //Regex filter1 = new Regex(@"((\d{1,2}:\d{2,2} \w{2,2}) \(*(\d{1,2}:\d{1,2} \w{2,2}))\)? (\S*) (.*)"); // matches events with open and close times -- 20190827 - Now accounts for parentheses
-                //Regex filter2 = new Regex(@"((^\d{1,2}:\d{2,2} \w{2,2}) (?!\(?\d{1,2}:\d{2,2} \w{2,2})(\S*)(.*))"); // matches events with just an open time
-                // ((\d{1,2}:\d{2,2} \w{2,2})( \(*(\d{1,2}:\d{1,2} \w{2,2}))*)\)? (\S*(, \S*)*) (.*)
-                Regex filter3 = new Regex(@"((\d{1,2}:\d{2,2} \w{2,2})( \(*(\d{1,2}:\d{1,2} \w{2,2}))*)\)? ([\w-]+(, [\w-]+)*) (.*)");
-                foreach (List<string> oneDay in allDays)
-                {
-                    
-                    var theDate = oneDay[0]; 
-                    //nesTextBox.AppendText("\n" + theDate + "\n");
-
-                    foreach (string oneDayLine in oneDay)
-                    {
-                        string startTime;
-                        string endTime;
-                        string theEvent;
-                        string theSeries;
-
-                        if (oneDayLine.Contains("ARCA") || oneDayLine.Contains("NGOTS") || oneDayLine.Contains("MENCS") || oneDayLine.Contains("NXS") || oneDayLine.Contains("MKNPS"))
-                        {
-
-                            if (oneDayLine.Contains("PRACTICE") || oneDayLine.Contains("GARAGE OPEN") || oneDayLine.Contains("RACE") || oneDayLine.Contains("QUALIFYING"))
-                            {
-                                //Match openAndClose = filter1.Match(oneDayLine);
-                                //Match openOnly = filter2.Match(oneDayLine);
-                                Match masterMatch = filter3.Match(oneDayLine);
-
-                                // attempt to unite the two filters into one, while accounting for multiple series per event.     
-                                if (masterMatch.Success)
-                                {
-                                    startTime = masterMatch.Groups[2].ToString();
-                                    endTime = masterMatch.Groups[4].ToString(); // Not group 3 because it may contain a "(".
-                                    theSeries = masterMatch.Groups[5].ToString();
-                                    theEvent = masterMatch.Groups[7].ToString();
-
-                                    //nesTextBox.AppendText(startTime + endTime + "\t\t" + theSeries + "\t\t" + theEvent + "\n");
-                                    if (oneDayLine.Contains("GARAGE OPEN"))
-                                    {
-                                     
-                                        CreateIcalEvent(startTime, "", theDate, raceTrack, theEvent, theSeries);
-
-                                        if (endTime != "") // If the GARAGE OPEN even contains an endTime;
-                                        {
-                                            CreateIcalEvent(endTime, "", theDate, raceTrack, "GARAGE CLOSES", theSeries);
-                                        }
-                                        
-                                    }
-                                    else
-                                    {
-                                        CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            _calendar.AddProperty("X-WR-CALNAME", raceTrack);
-            //_calendar.AddTimeZone(new VTimeZone("America/New_York"));
+            //        var nadaTomeTimeZone = TimeZone(theText);
 
 
-          
+            //        List<string> lines = theText.Split(
+            //            new[] { "\r\n", "\r", "\n" },
+            //            StringSplitOptions.None
+            //        ).ToList();
 
-            var serializer = new CalendarSerializer();
-            var serializedCalendar = serializer.SerializeToString(_calendar);
+            //        List<string> lessLines = LessLines(lines); // remove some of the unneeded lines.
 
-            nesTextBox.AppendText(serializedCalendar);
-            //myString = myString.Substring(0, myString.Length-3);
-            string saveFileName= openFileDialog.FileName.ToString()
-                .Substring(0, openFileDialog.FileName.ToString().Length - 4);
-            File.WriteAllText(@saveFileName + ".ics", serializedCalendar);
-            _calendar.Dispose();
+            //        raceTrack = lessLines[0]; // The Race Track/Series
+
+            //        List<List<string>> allDays = DailySchedule(lessLines); // all events separated by day
+
+            //        //Regex filter1 = new Regex(@"((\d{1,2}:\d{2,2} \w{2,2}) \(*(\d{1,2}:\d{1,2} \w{2,2}))\)? (\S*) (.*)"); // matches events with open and close times -- 20190827 - Now accounts for parentheses
+            //        //Regex filter2 = new Regex(@"((^\d{1,2}:\d{2,2} \w{2,2}) (?!\(?\d{1,2}:\d{2,2} \w{2,2})(\S*)(.*))"); // matches events with just an open time
+            //        // ((\d{1,2}:\d{2,2} \w{2,2})( \(*(\d{1,2}:\d{1,2} \w{2,2}))*)\)? (\S*(, \S*)*) (.*)
+            //        Regex filter3 = new Regex(@"((\d{1,2}:\d{2,2} \w{2,2})( \(*(\d{1,2}:\d{1,2} \w{2,2}))*)\)? ([\w-]+(, [\w-]+)*) (.*)");
+            //        foreach (List<string> oneDay in allDays)
+            //        {
+
+            //            var theDate = oneDay[0]; 
+            //            //nesTextBox.AppendText("\n" + theDate + "\n");
+
+            //            foreach (string oneDayLine in oneDay)
+            //            {
+            //                string startTime;
+            //                string endTime;
+            //                string theEvent;
+            //                string theSeries;
+
+            //                if (oneDayLine.Contains("ARCA") || oneDayLine.Contains("NGOTS") || oneDayLine.Contains("MENCS") || oneDayLine.Contains("NXS") || oneDayLine.Contains("MKNPS"))
+            //                {
+
+            //                    if (oneDayLine.Contains("PRACTICE") || oneDayLine.Contains("GARAGE OPEN") || oneDayLine.Contains("RACE") || oneDayLine.Contains("QUALIFYING"))
+            //                    {
+            //                        //Match openAndClose = filter1.Match(oneDayLine);
+            //                        //Match openOnly = filter2.Match(oneDayLine);
+            //                        Match masterMatch = filter3.Match(oneDayLine);
+
+            //                        // attempt to unite the two filters into one, while accounting for multiple series per event.     
+            //                        if (masterMatch.Success)
+            //                        {
+            //                            startTime = masterMatch.Groups[2].ToString();
+            //                            endTime = masterMatch.Groups[4].ToString(); // Not group 3 because it may contain a "(".
+            //                            theSeries = masterMatch.Groups[5].ToString();
+            //                            theEvent = masterMatch.Groups[7].ToString();
+
+            //                            //nesTextBox.AppendText(startTime + endTime + "\t\t" + theSeries + "\t\t" + theEvent + "\n");
+            //                            if (oneDayLine.Contains("GARAGE OPEN"))
+            //                            {
+
+            //                                CreateIcalEvent(startTime, "", theDate, raceTrack, theEvent, theSeries);
+
+            //                                if (endTime != "") // If the GARAGE OPEN even contains an endTime;
+            //                                {
+            //                                    CreateIcalEvent(endTime, "", theDate, raceTrack, "GARAGE CLOSES", theSeries);
+            //                                }
+
+            //                            }
+            //                            else
+            //                            {
+            //                                CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+
+            //    _calendar.AddProperty("X-WR-CALNAME", raceTrack);
+            //    //_calendar.AddTimeZone(new VTimeZone("America/New_York"));
+
+
+
+
+            //    var serializer = new CalendarSerializer();
+            //    var serializedCalendar = serializer.SerializeToString(_calendar);
+
+            //    nesTextBox.AppendText(serializedCalendar);
+            //    //myString = myString.Substring(0, myString.Length-3);
+            //    string saveFileName= openFileDialog.FileName.ToString()
+            //        .Substring(0, openFileDialog.FileName.ToString().Length - 4);
+            //    File.WriteAllText(@saveFileName + ".ics", serializedCalendar);
+            //    _calendar.Dispose();
+            //}
         }
-
 
 
         public List<List<string>> DailySchedule(List<string> lessLines)
@@ -373,5 +370,7 @@ namespace NESPTI
                 }
             }
         }
+
+
     }
 }
