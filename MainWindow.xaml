@@ -5,14 +5,14 @@
                       xmlns:nespti="clr-namespace:NESPTI"
                       xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                       Title="NESPTI"
-                      Height="600"
-                      Width="800" WindowTitleBrush="Black" Background="Black" TitleForeground="White" Foreground="White">
+                      Height="346"
+                      Width="690.666" WindowTitleBrush="Black" Background="Black" TitleForeground="White" Foreground="White">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="129*"/>
+            <ColumnDefinition Width="135*" MinWidth="135" MaxWidth="135"/>
             <ColumnDefinition Width="665*"/>
         </Grid.ColumnDefinitions>
-        <Button Content="Open NES" HorizontalAlignment="Left" Margin="19,18,0,0" VerticalAlignment="Top" Width="75" Style="{StaticResource AccentedSquareButtonStyle}" BorderBrush="{x:Null}" TextOptions.TextHintingMode="Animated" Controls:ControlsHelper.ContentCharacterCasing="Normal" Click="Button_Click"/>
+        <Button Content="Open NES" Margin="0,0,549,0" VerticalAlignment="Top" Style="{StaticResource AccentedSquareButtonStyle}" BorderBrush="{x:Null}" TextOptions.TextHintingMode="Animated" Controls:ControlsHelper.ContentCharacterCasing="Normal" Click="Button_Click" Grid.ColumnSpan="2"/>
         <TextBox x:Name="nesTextBox" TextWrapping="Wrap" Text="Select a file." Grid.Column="1"/>
     </Grid>
 

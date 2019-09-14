@@ -36,9 +36,15 @@ namespace NESPTI
             _notifyIcon.ContextMenuStrip =
                 new System.Windows.Forms.ContextMenuStrip();
             _notifyIcon.ContextMenuStrip.Items.Add("MainWindow...").Click += (s, e) => ShowMainWindow();
+            _notifyIcon.ContextMenuStrip.Items.Add("Monitor Folder").Click += (s, e) => MonitorDirectory();
             _notifyIcon.ContextMenuStrip.Items.Add("Exit").Click += (s, e) => ExitApplication();
+           
         }
 
+        private void MonitorDirectory()
+        {
+
+        }
         private void ExitApplication()
         {
             _isExit = true;

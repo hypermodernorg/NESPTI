@@ -128,7 +128,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CreateEvent.cs" />
     <Compile Include="GetText.cs" />
+    <Compile Include="NewFileDetector.cs" />
+    <Compile Include="ProcessText.cs" />
     <Compile Include="SystemTray.cs" />
     <Compile Include="Settings.cs" />
     <Page Include="MainWindow.xaml">
