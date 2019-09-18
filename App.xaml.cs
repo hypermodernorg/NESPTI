@@ -36,14 +36,25 @@ namespace NESPTI
             _notifyIcon.ContextMenuStrip =
                 new System.Windows.Forms.ContextMenuStrip();
             _notifyIcon.ContextMenuStrip.Items.Add("MainWindow...").Click += (s, e) => ShowMainWindow();
-            _notifyIcon.ContextMenuStrip.Items.Add("Monitor Folder").Click += (s, e) => MonitorDirectory();
+            _notifyIcon.ContextMenuStrip.Items.Add("Start Monitoring").Click += (s, e) => MonitorDirectory();
+            _notifyIcon.ContextMenuStrip.Items.Add("Stop Monitoring").Click += (s, e) => StopMonitorDirectory();
             _notifyIcon.ContextMenuStrip.Items.Add("Exit").Click += (s, e) => ExitApplication();
            
         }
 
+
+        private void StopMonitorDirectory()
+        {
+            NESPTI.NewFileDetector.StopWatchDirectory();
+        
+
+        }
+
         private void MonitorDirectory()
         {
-
+            NESPTI.NewFileDetector.WatchDirectory();
+            //MessageBox.Show("Called NewFileDetector");
+            
         }
         private void ExitApplication()
         {

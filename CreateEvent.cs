@@ -9,7 +9,7 @@ using Ical.Net.DataTypes;
 
 namespace NESPTI
 {
-    public partial class MainWindow
+    public partial class ConvertToIcal
     {
 
         public void CreateIcalEvent(string startTime, string endTime, string theDate, string raceTrack, string theEvent, string theSeries)

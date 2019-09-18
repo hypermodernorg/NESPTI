@@ -53,20 +53,21 @@ namespace NESPTI
             InitializeComponent();
         }
 
-        // The program's main components are divided into three main parts:
-        // 1. GetText.cs        -- Extract the text from the pdf using the iText library.
-        // 2. ProcessText.cs    -- Process the extracted text and prepare to pass to the calendar using program logic and regex.
-        // 3. CreateEvent.cs    -- Create an event from the variables collected from ProcessText.cs using the iCal.net library.
-        // -- Misc              -- Static variables, user events, and settings are currently defined here.
+        // The program's main components are divided into four main parts:
+        // 1. GetText.cs            -- Extract the text from the pdf using the iText library.
+        // 2. ProcessText.cs        -- Process the extracted text and prepare to pass to the calendar using program logic and regex.
+        // 3. CreateEvent.cs        -- Create an event from the variables collected from ProcessText.cs using the iCal.net library.
+        // 4. NewFileDetector.cs    -- Detect new files and process.
+        // -- Misc                  -- Static variables, user events, and settings are currently defined here.
+        // -- App.xaml.css          -- Create system tray icon. Depending on research, tie the file listeners to processes 1-3 here.
+        
 
-        // variables shared between all methods.
-        static Calendar _calendar = new Calendar();
-        private static string _timeZone = "Eastern Standard Time";
-        private static string _theText = "";
+
 
         public void Button_Click(object sender, RoutedEventArgs e)
         {
-            ConverterMain();
+            var x = new ConvertToIcal();
+            x.ConverterMain();
         }
 
         private void SettingsButton_OnClick(object sender, RoutedEventArgs e)

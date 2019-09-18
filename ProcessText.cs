@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NESPTI
 {
-    public partial class MainWindow
+    public partial class ConvertToIcal
     {
         public string TimeZone(string theText)
         {

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms.VisualStyles;
 using System.Windows.Media;
+using Ical.Net;
 using Ical.Net.Serialization;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
@@ -18,18 +19,22 @@ using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace NESPTI
 {
-    public partial class MainWindow
+    public partial class ConvertToIcal
     {
+        // variables shared between all methods.
+        static Calendar _calendar = new Calendar();
+        private static string _timeZone = "Eastern Standard Time";
+        private static string _theText = "";
         // Get all the text.
-        public string[] GetAllText()
+        public string[] GetAllText(FileSystemEventArgs e = null)
         {
             _theText = ""; // Clear the existing text before use.
-            nesTextBox.Text = ""; // Clear the textbox before use.
+            //nesTextBox.Text = ""; // Clear the textbox before use.
             string saveFileName = "";
 
 
             // Check if the window is visible, if so, get the text this way through user dialogue.
-            if (Application.Current.MainWindow != null && Application.Current.MainWindow.IsVisible)
+            if (e == null)
             {
                 var openFileDialog = new OpenFileDialog
                 {
@@ -51,21 +56,30 @@ namespace NESPTI
 
                 saveFileName = openFileDialog.FileName.ToString()
                     .Substring(0, openFileDialog.FileName.ToString().Length - 4);
+                MessageBox.Show(saveFileName);
             }
 
             // If the window is not visible, then automatically check for new files.
-            if (Application.Current.MainWindow != null && Application.Current.MainWindow.IsVisible == false)
+            if (e != null)
             {
-                // Check for new files
+
+                var numberOfPages = NumberOfPages(e.FullPath);
+                for (int i = 1; i <= numberOfPages; i++)
+                {
+                    _theText += PageText(i, e.FullPath) + "\n";
+                }
+
+                saveFileName = e.FullPath.Substring(0, e.FullPath.Length - 4);
+                MessageBox.Show(saveFileName);
             }
 
             string[] getAllText = new string[] {_theText, saveFileName};
             return getAllText;
         }
 
-        public void ConverterMain()
+        public void ConverterMain(FileSystemEventArgs e = null)
         {
-            string[] getAllText = GetAllText();
+            string[] getAllText = GetAllText(e);
             _theText = getAllText[0];
             string saveFileName = getAllText[1];
             string raceTrack = "";
@@ -143,7 +157,7 @@ namespace NESPTI
             var serializer = new CalendarSerializer();
             var serializedCalendar = serializer.SerializeToString(_calendar);
 
-            nesTextBox.AppendText(serializedCalendar);
+            //nesTextBox.AppendText(serializedCalendar);
 
             //string saveFileName = openFileDialog.FileName.ToString()
             //    .Substring(0, openFileDialog.FileName.ToString().Length - 4);
