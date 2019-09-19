@@ -22,7 +22,7 @@ namespace NESPTI
         public static void WatchDirectory()
         {
             //FileSystemWatcher watcher = new FileSystemWatcher();
-            _watcher.Path = @"C:\NESPTI\watch";
+            _watcher.Path = Properties.Settings.Default.inputPath;
             _watcher.NotifyFilter = NotifyFilters.LastWrite
                                    | NotifyFilters.FileName
                                    | NotifyFilters.DirectoryName;

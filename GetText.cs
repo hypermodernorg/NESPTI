@@ -161,7 +161,22 @@ namespace NESPTI
 
             //string saveFileName = openFileDialog.FileName.ToString()
             //    .Substring(0, openFileDialog.FileName.ToString().Length - 4);
-            File.WriteAllText(@saveFileName + ".ics", serializedCalendar);
+
+            if (e == null)
+            {
+                File.WriteAllText(@saveFileName + ".ics", serializedCalendar);
+            }
+
+            if (e != null)
+            {
+                string outputFileName = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + e.Name.Substring(0, e.Name.Length - 4);
+                File.WriteAllText(outputFileName+ ".ics", serializedCalendar);
+
+
+                //saveFileName = openFileDialog.FileName.ToString()
+                //    .Substring(0, openFileDialog.FileName.ToString().Length - 4);
+            }
+          
             _calendar.Dispose();
         }
         // get the number of pages
