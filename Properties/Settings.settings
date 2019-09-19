@@ -3,7 +3,13 @@
   <Profiles />
   <Settings>
     <Setting Name="sourcePath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\</Value>
+      <Value Profile="(Default)">C:\NESPTI</Value>
+    </Setting>
+    <Setting Name="outputPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\NESPTI</Value>
+    </Setting>
+    <Setting Name="inputPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\NESPTI</Value>
     </Setting>
   </Settings>
 </SettingsFile>

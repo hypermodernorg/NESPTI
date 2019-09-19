@@ -8,12 +8,27 @@
                       Height="346"
                       Width="690.666" WindowTitleBrush="Black" Background="Black" TitleForeground="White" Foreground="White">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="28*" MaxHeight="28" MinHeight="28"/>
+            <RowDefinition Height="28*" MaxHeight="28" MinHeight="28"/>
+            <RowDefinition Height="28*" MaxHeight="28" MinHeight="28"/>
+            <RowDefinition Height="28*" MaxHeight="28" MinHeight="28"/>
+            <RowDefinition Height="28*" MaxHeight="28" MinHeight="28"/>
+            <RowDefinition Height="28*" MaxHeight="28" MinHeight="28"/>
+            <RowDefinition Height="28*" MaxHeight="28" MinHeight="28"/>
+            <RowDefinition Height="28*" MaxHeight="28" MinHeight="28"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="135*" MinWidth="135" MaxWidth="135"/>
-            <ColumnDefinition Width="665*"/>
+            <ColumnDefinition Width="150" MinWidth="150" MaxWidth="150"/>
+            <ColumnDefinition Width="300*"/>
+
         </Grid.ColumnDefinitions>
-        <Button Content="Open NES" Margin="0,0,549,0" VerticalAlignment="Top" Style="{StaticResource AccentedSquareButtonStyle}" BorderBrush="{x:Null}" TextOptions.TextHintingMode="Animated" Controls:ControlsHelper.ContentCharacterCasing="Normal" Click="Button_Click" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="nesTextBox" TextWrapping="Wrap" Text="Select a file." Grid.Column="1"/>
+
+        <Button ToolTip="Open a specific pdf file to convert to iCal format." Content="Open NES" Style="{StaticResource AccentedSquareButtonStyle}" BorderBrush="{x:Null}" TextOptions.TextHintingMode="Animated" Controls:ControlsHelper.ContentCharacterCasing="Normal" Click="Button_Click" MinHeight="28"/>
+        <Button Name="OutputButton" Content="Output Folder" ToolTip="Output folder for the automated directory monitor." Style="{StaticResource AccentedSquareButtonStyle}" BorderBrush="{x:Null}" TextOptions.TextHintingMode="Animated" Controls:ControlsHelper.ContentCharacterCasing="Normal" MinHeight="28" Grid.Row="4" Click="OutputButton_Click"/>
+        <Button Name="InputButton"  Content="Input Folder" ToolTip="Input folder for the automated directory monitor." Style="{StaticResource AccentedSquareButtonStyle}" BorderBrush="{x:Null}" TextOptions.TextHintingMode="Animated" Controls:ControlsHelper.ContentCharacterCasing="Normal"  MinHeight="28" Grid.Row="2" Click="InputButton_Click"/>
+        <Label x:Name="inputLbl" Content="Input:" Grid.Row="2" Foreground="White" Background="#FF163A49" Grid.Column="2"/>
+        <Label x:Name="outputLbl" Content="Output:" Grid.Row="4" Foreground="White" Background="#FF163A49" MinHeight="28" Grid.Column="2"/>
     </Grid>
 
     <Controls:MetroWindow.RightWindowCommands>

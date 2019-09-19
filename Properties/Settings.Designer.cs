@@ -25,13 +25,37 @@ namespace NESPTI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\NESPTI")]
         public string sourcePath {
             get {
                 return ((string)(this["sourcePath"]));
             }
             set {
                 this["sourcePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\NESPTI")]
+        public string outputPath {
+            get {
+                return ((string)(this["outputPath"]));
+            }
+            set {
+                this["outputPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\NESPTI")]
+        public string inputPath {
+            get {
+                return ((string)(this["inputPath"]));
+            }
+            set {
+                this["inputPath"] = value;
             }
         }
     }
