@@ -28,7 +28,8 @@
         <Button Name="OutputButton" Content="Output Folder" ToolTip="Output folder for the automated directory monitor." Style="{StaticResource AccentedSquareButtonStyle}" BorderBrush="{x:Null}" TextOptions.TextHintingMode="Animated" Controls:ControlsHelper.ContentCharacterCasing="Normal" MinHeight="28" Grid.Row="4" Click="OutputButton_Click"/>
         <Button Name="InputButton"  Content="Input Folder" ToolTip="Input folder for the automated directory monitor." Style="{StaticResource AccentedSquareButtonStyle}" BorderBrush="{x:Null}" TextOptions.TextHintingMode="Animated" Controls:ControlsHelper.ContentCharacterCasing="Normal"  MinHeight="28" Grid.Row="2" Click="InputButton_Click"/>
         <Label x:Name="inputLbl" Content="Input:" Grid.Row="2" Foreground="White" Background="#FF163A49" Grid.Column="2"/>
-        <Label x:Name="outputLbl" Content="Output:" Grid.Row="4" Foreground="White" Background="#FF163A49" MinHeight="28" Grid.Column="2"/>
+        <Label x:Name="outputLbl" Content="Output:" Grid.Row="4" Foreground="White" Background="#FF163A49" MinHeight="28" Grid.Column="2"  x:FieldModifier="public"/>
+        <Label x:Name="openNesLbl" Content="" Foreground="White" Background="#FF163A49" Grid.Column="1"/>
     </Grid>
 
     <Controls:MetroWindow.RightWindowCommands>

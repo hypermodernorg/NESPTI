@@ -22,6 +22,7 @@ namespace NESPTI
         // Todo:    -- 20190910 - Progress made for four timezones. Need more research for other tracks and their respective timezones. 
         // Todo:    -- 20190918 - Verifying that issue still exist with timezones due to local socio-political rules.
         // Todo:    2. Correctly handle event end times that are in parentheses, which should be discarded.
+        // Todo:    -- 20190919 - Completed. Checked group three for "(" and if true, set endTime to empty.
         // Todo:    3. Play with the garage open and close events end times. i.e... 15 minutes.
         // Todo:    -- 20190910 - Completed, but needs testing.
         // Todo:    --  Added, however doesn't display properly (text not fitting in small 15 minute space) in all views. Might add this as a user parameter instead of hardcoded time.
@@ -30,8 +31,9 @@ namespace NESPTI
         // Todo:    5. Run via command line with flags.
         // Todo:    6. While running in the background, check for new files and convert.
         // Todo:    -- 20190917 - Progress. Functional but can be polished.
-        // Todo:    -- 20190918 - Completed
+        // Todo:    -- 20190918 - Completed.
         // Todo:    7. Handle calendar updates.
+        // Todo:    8. Generate log file
 
         public MainWindow()
         {

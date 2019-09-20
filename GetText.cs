@@ -16,6 +16,7 @@ using iText.Kernel.Pdf.Canvas.Parser;
 using iText.Kernel.Pdf.Canvas.Parser.Listener;
 using Microsoft.Win32;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using System.Timers;
 
 namespace NESPTI
 {
@@ -131,6 +132,14 @@ namespace NESPTI
                                 theSeries = masterMatch.Groups[5].ToString();
                                 theEvent = masterMatch.Groups[7].ToString();
 
+
+                                // This handles the case where the endtime is enclosed in parentheses. 
+                                // Parentheses in the endtime simply indicate the start time in eastern standard time, and can be discarded.
+                                if (masterMatch.Groups[3].ToString().Contains("("))
+                                {
+                                    endTime = "";
+                                }
+
                                 //nesTextBox.AppendText(startTime + endTime + "\t\t" + theSeries + "\t\t" + theEvent + "\n");
                                 if (oneDayLine.Contains("GARAGE OPEN"))
                                 {
@@ -165,6 +174,14 @@ namespace NESPTI
             if (e == null)
             {
                 File.WriteAllText(@saveFileName + ".ics", serializedCalendar);
+                foreach (Window window in Application.Current.Windows)
+                {
+                    if (window.GetType() == typeof(MainWindow))
+                    {
+                        (window as MainWindow).openNesLbl.Content = "Created: " + saveFileName + "ics";
+                    }
+                }
+
             }
 
             if (e != null)
