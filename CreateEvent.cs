@@ -16,11 +16,14 @@ namespace NESPTI
         {
             Regex theYearRegex = new Regex(@"(\d{4,4})");
             Match theYearMatch = theYearRegex.Match(raceTrack);
-            Regex theMonthRegex = new Regex(@"\w*, (\w*) (\d*)"); // get the month and day in groups
-            Match theMonthMatch = theMonthRegex.Match(theDate); // convert month
+            //Regex theMonthRegex = new Regex(@"\w*, (\w*) (\d*)"); // get the month and day in groups
+            //Match theMonthMatch = theMonthRegex.Match(theDate); // convert month
             //var theMonthString = theMonthMatch.Groups[1];
             //var theDay = theMonthMatch.Groups[2];
             var now = DateTime.Parse(theDate + " " + theYearMatch + " " + startTime);
+
+
+
 
             var e = new CalendarEvent
             {

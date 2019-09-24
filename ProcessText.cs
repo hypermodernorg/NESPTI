@@ -14,7 +14,7 @@ namespace NESPTI
             string nodaTimeZone = "";
             var tzDictionary = new Dictionary<string, string>
             {
-                { "Eastern Standard Time", "America/Indiana/Indianapolis" },
+                { "Eastern Standard Time", "America/New_York" },
                 { "Central Standard Time", "US/Central" },
                 { "Pacific Standard Time", "US/Pacific" },
                 { "Mountain Standard Time", "America/Denver" }
@@ -29,7 +29,7 @@ namespace NESPTI
                 }
 
             }
-
+            
             _timeZone = nodaTimeZone;
             return nodaTimeZone;
         }

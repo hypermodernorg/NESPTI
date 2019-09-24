@@ -24,7 +24,7 @@ namespace NESPTI
     {
         // variables shared between all methods.
         static Calendar _calendar = new Calendar();
-        private static string _timeZone = "Eastern Standard Time";
+        private static string _timeZone = "";
         private static string _theText = "";
         // Get all the text.
         public string[] GetAllText(FileSystemEventArgs e = null)
@@ -57,7 +57,7 @@ namespace NESPTI
 
                 saveFileName = openFileDialog.FileName.ToString()
                     .Substring(0, openFileDialog.FileName.ToString().Length - 4);
-                MessageBox.Show(saveFileName);
+                //MessageBox.Show(saveFileName);
             }
 
             // If the window is not visible, then automatically check for new files.
@@ -71,7 +71,7 @@ namespace NESPTI
                 }
 
                 saveFileName = e.FullPath.Substring(0, e.FullPath.Length - 4);
-                MessageBox.Show(saveFileName);
+                //MessageBox.Show(saveFileName);
             }
 
             string[] getAllText = new string[] {_theText, saveFileName};
@@ -85,7 +85,7 @@ namespace NESPTI
             string saveFileName = getAllText[1];
             string raceTrack = "";
 
-            var nadaTomeTimeZone = TimeZone(_theText); // Get the pdf timezone, and translate it to nada format.
+            //var nadaTomeTimeZone = TimeZone(_theText); // Get the pdf timezone, and translate it to nada format.
 
             // Split the string by lines into a list of string.
             List<string> lines = _theText.Split(
