@@ -22,6 +22,7 @@ namespace NESPTI
         // Todo:    1. Run via command line with flags.
         // Todo:    2. Handle calendar updates.
         // Todo:    3. Generate log file
+        // Todo:    4. Installer
 
         public MainWindow()
         {

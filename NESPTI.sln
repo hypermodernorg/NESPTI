@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{319A0119-2FFE-4E83-8A9C-A37A479F6C1D}"
 	ProjectSection(SolutionItems) = preProject
 		Icon1.ico = Icon1.ico
+		Icon2.ico = Icon2.ico
 	EndProjectSection
 EndProject
 Global

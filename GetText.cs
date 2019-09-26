@@ -26,6 +26,8 @@ namespace NESPTI
         static Calendar _calendar = new Calendar();
         private static string _timeZone = "";
         private static string _theText = "";
+
+
         // Get all the text.
         public string[] GetAllText(FileSystemEventArgs e = null)
         {
@@ -200,7 +202,7 @@ namespace NESPTI
         public int NumberOfPages(string filename)
         {
             int numberOfPages = 0;
-            PdfDocument pdf = new PdfDocument(new PdfReader(filename));
+            PdfDocument pdf = new PdfDocument(new PdfReader(filename)); // file access error here
             numberOfPages = pdf.GetNumberOfPages();
             pdf.Close();
             return numberOfPages;
