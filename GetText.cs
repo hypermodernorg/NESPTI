@@ -17,6 +17,7 @@ using iText.Kernel.Pdf.Canvas.Parser.Listener;
 using Microsoft.Win32;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using System.Timers;
+using Serilog;
 
 namespace NESPTI
 {
@@ -32,13 +33,13 @@ namespace NESPTI
         public string[] GetAllText(FileSystemEventArgs e = null)
         {
             _theText = ""; // Clear the existing text before use.
-            //nesTextBox.Text = ""; // Clear the textbox before use.
-            string saveFileName = "";
+            string saveFileName = "";  
 
 
             // Check if the window is visible, if so, get the text this way through user dialogue.
             if (e == null)
             {
+                Log.Information("Begin User Selected File Process");
                 var openFileDialog = new OpenFileDialog
                 {
                     Filter = "PDF Files (*.pdf)|*.pdf",
@@ -48,32 +49,53 @@ namespace NESPTI
                 if (openFileDialog.ShowDialog() == true)
                 {
                     // Get the number of pages.
-                    var numberOfPages = NumberOfPages(openFileDialog.FileName.ToString());
+                    Log.Information("File opened: " + openFileDialog.FileName.ToString());
+                    var numberOfPages = NumberOfPages(openFileDialog.FileName.ToString()); 
+                    Log.Information("Number of pages: " + numberOfPages);
 
-                    // Get the text, line by line
+
+                    // Get the text, page by page
+                    Log.Information("Begin page by page text extraction.");
                     for (int i = 1; i <= numberOfPages; i++)
                     {
                         _theText += PageText(i, openFileDialog.FileName.ToString()) + "\n";
+                        Log.Information("Extracted page: " + i);
                     }
+                    Log.Information("End page by page text extraction.");
                 }
 
-                saveFileName = openFileDialog.FileName.ToString()
-                    .Substring(0, openFileDialog.FileName.ToString().Length - 4);
-                //MessageBox.Show(saveFileName);
+                try
+                {
+                    saveFileName = openFileDialog.FileName.ToString()
+                        .Substring(0, openFileDialog.FileName.ToString().Length - 4);
+               
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "There was most likely no file selected.");
+               
+                }
             }
 
             // If the window is not visible, then automatically check for new files.
             if (e != null)
             {
-
+                // Get the number of pages
+                Log.Information("File opened: " + e.FullPath.ToString());
                 var numberOfPages = NumberOfPages(e.FullPath);
+                Log.Information("Number of pages: " + numberOfPages);
+
+
+                Log.Information("Begin page by page text extraction.");
                 for (int i = 1; i <= numberOfPages; i++)
                 {
                     _theText += PageText(i, e.FullPath) + "\n";
+                    Log.Information("Extracted page: " + i);
                 }
+                Log.Information("End page by page text extraction.");
 
                 saveFileName = e.FullPath.Substring(0, e.FullPath.Length - 4);
-                //MessageBox.Show(saveFileName);
+          
             }
 
             string[] getAllText = new string[] {_theText, saveFileName};
@@ -82,18 +104,19 @@ namespace NESPTI
 
         public void ConverterMain(FileSystemEventArgs e = null)
         {
+           
             string[] getAllText = GetAllText(e);
             _theText = getAllText[0];
             string saveFileName = getAllText[1];
             string raceTrack = "";
 
-            //var nadaTomeTimeZone = TimeZone(_theText); // Get the pdf timezone, and translate it to nada format.
 
             // Split the string by lines into a list of string.
             List<string> lines = _theText.Split(
                 new[] {"\r\n", "\r", "\n"},
                 StringSplitOptions.None
             ).ToList();
+            Log.Information("Text to List of strings.");
 
             List<string> lessLines = LessLines(lines); // Filter some unneeded lines.
 
@@ -136,7 +159,7 @@ namespace NESPTI
 
 
                                 // This handles the case where the endtime is enclosed in parentheses. 
-                                // Parentheses in the endtime simply indicate the start time in eastern standard time, and can be discarded.
+                                // Parentheses in the endtime simply indicates the start time in eastern standard time, and can be discarded.
                                 if (masterMatch.Groups[3].ToString().Contains("("))
                                 {
                                     endTime = "";
@@ -180,7 +203,7 @@ namespace NESPTI
                 {
                     if (window.GetType() == typeof(MainWindow))
                     {
-                        (window as MainWindow).openNesLbl.Content = "Created: " + saveFileName + "ics";
+                        (window as MainWindow).openNesLbl.Content = "Created: " + saveFileName + ".ics";
                     }
                 }
 
@@ -202,7 +225,7 @@ namespace NESPTI
         public int NumberOfPages(string filename)
         {
             int numberOfPages = 0;
-            PdfDocument pdf = new PdfDocument(new PdfReader(filename)); // file access error here
+            PdfDocument pdf = new PdfDocument(new PdfReader(filename)); // file access error here -- Solved by adding time between file detection and file open.
             numberOfPages = pdf.GetNumberOfPages();
             pdf.Close();
             return numberOfPages;

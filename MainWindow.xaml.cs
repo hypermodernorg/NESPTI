@@ -1,5 +1,7 @@
+using System;
 using System.Windows;
 using System.Windows.Forms;
+using Serilog;
 
 
 namespace NESPTI
@@ -13,10 +15,11 @@ namespace NESPTI
         // The program's main components are divided into four main parts:
         // 1. GetText.cs            -- Extract the text from the pdf using the iText library.
         // 2. ProcessText.cs        -- Process the extracted text and prepare to pass to the calendar using program logic and regex.
-        // 3. CreateEvent.cs        -- Create an event from the variables collected from ProcessText.cs using the iCal.net library.
+        // 3. CreateEvent.cs        -- Create an event from the variables collected from ProcessText.cs using the iCal.net library. 
         // 4. NewFileDetector.cs    -- Detect new files and process.
         // -- Misc                  -- Settings are currently defined here.
         // -- App.xaml.css          -- Create system tray icon. Depending on research, tie the file listeners to processes 1-3 here.
+        // -- Log.cs                -- Serilog logging system.
 
 
         // Todo:    1. Run via command line with flags.
@@ -29,12 +32,24 @@ namespace NESPTI
             InitializeComponent();
             outputLbl.Content = Properties.Settings.Default.outputPath;
             inputLbl.Content = Properties.Settings.Default.inputPath;
+            ConvertToIcal.EventLogger();
         }
 
         public void Button_Click(object sender, RoutedEventArgs e)
         {
             var x = new ConvertToIcal();
-            x.ConverterMain();
+
+
+            // If the user elects to cancel the file dialogue, try catch below will handle it without causing NESPTI to crash.
+            try
+            {
+                x.ConverterMain();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error executing ConverterMain from OpenNES");
+            }
+          
         }
 
         private void SettingsButton_OnClick(object sender, RoutedEventArgs e)

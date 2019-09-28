@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Ical.Net.CalendarComponents;
 using Ical.Net.DataTypes;
+using Serilog;
 
 namespace NESPTI
 {
@@ -14,12 +15,10 @@ namespace NESPTI
 
         public void CreateIcalEvent(string startTime, string endTime, string theDate, string raceTrack, string theEvent, string theSeries)
         {
+            Log.Information("CreateIcalEvent Begin: StartTime:" + startTime + " endTime: " + endTime + " theDate:" + theDate + " raceTrack: " + raceTrack + " theEvent: " + theEvent + " theSeries: " + theSeries);
             Regex theYearRegex = new Regex(@"(\d{4,4})");
             Match theYearMatch = theYearRegex.Match(raceTrack);
-            //Regex theMonthRegex = new Regex(@"\w*, (\w*) (\d*)"); // get the month and day in groups
-            //Match theMonthMatch = theMonthRegex.Match(theDate); // convert month
-            //var theMonthString = theMonthMatch.Groups[1];
-            //var theDay = theMonthMatch.Groups[2];
+
             var now = DateTime.Parse(theDate + " " + theYearMatch + " " + startTime);
 
 

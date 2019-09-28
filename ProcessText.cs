@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace NESPTI
 {
@@ -26,6 +27,7 @@ namespace NESPTI
                 if (theText.Contains(entry.Key))
                 {
                     nodaTimeZone = entry.Value;
+                    Log.Information("Timezone: " + nodaTimeZone + "  Timezone key: " + entry.Key);
                 }
 
             }
@@ -51,7 +53,7 @@ namespace NESPTI
                 if (toChange.Contains(entry.Key))
                 {
                     theChanged = theChanged.Replace(entry.Key, entry.Value);
-                    //nesTextBox.AppendText("change detected");
+                    Log.Information("Symbol change: " + entry.Key + "  " + entry.Value);
                 }
             }
 
@@ -66,8 +68,10 @@ namespace NESPTI
             List<string> oneDay = new List<string>(); // inner list containing one day
 
             int i = 0;
+            //\w*, \w* \d{1,2} -- was too greedy and false matched one pdf.
+            Regex filter1 = new Regex(@"\w+, \w+ \d{1,2}"); // check for the "Monday, August 13" date format
+            //\w+, \w+ \d{1,2}
 
-            Regex filter1 = new Regex(@"\w*, \w* \d{1,2}"); // check for the "Monday, August 13" date format
 
             foreach (string line in lessLines)
             {
@@ -78,6 +82,7 @@ namespace NESPTI
                 {
 
                     List<string> savedOneDay = new List<string>();
+                   
 
                     if (i > 0)
                     {
@@ -86,6 +91,7 @@ namespace NESPTI
                         oneDay.Clear();
                     }
                     oneDay.Add(line);
+                    Log.Information("DailySchedule: Found new Date: " + line);
                     i++;
                 }
 
@@ -94,6 +100,7 @@ namespace NESPTI
                     if (i > 0)
                     {
                         oneDay.Add(line);
+                   
                     }
                 }
             }
@@ -125,6 +132,7 @@ namespace NESPTI
                 if (!match1.Success && !match2.Success)
                 {
                     lessLines.Add(line);
+                    Log.Information("Lesslines: Not eliminated: " + line.ToString());
                 }
             }
 

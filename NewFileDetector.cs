@@ -9,6 +9,7 @@ using System.Windows;
 using System.Timers;
 using System.Threading;
 using System.Windows.Threading;
+using Serilog;
 using Timer = System.Timers.Timer;
 
 namespace NESPTI
@@ -25,6 +26,7 @@ namespace NESPTI
             {
                 _watcher.EnableRaisingEvents = false;
                 MessageBox.Show("Stopped Monitoring New Events");
+                Log.Information("User asked to stop the directory monitor.");
             }
 
       
@@ -34,11 +36,11 @@ namespace NESPTI
             if (_watcher.EnableRaisingEvents)
             {
                 MessageBox.Show("Already Monitoring New Events");
+                Log.Information("User asked to directory monitor, but the monitor is already active.");
             }
 
             if (_watcher.EnableRaisingEvents == false)
             {
-                //FileSystemWatcher watcher = new FileSystemWatcher();
                 _watcher.Path = Properties.Settings.Default.inputPath;
                 _watcher.NotifyFilter = NotifyFilters.FileName;
                 //  | NotifyFilters.DirectoryName;
@@ -54,6 +56,7 @@ namespace NESPTI
                 //Begin watching.
                 _watcher.EnableRaisingEvents = true;
                 MessageBox.Show("Now Monitoring New Events");
+                Log.Information("User began the directory monitor.");
             }
  
 
@@ -61,10 +64,21 @@ namespace NESPTI
 
         private static void OnChanged(object sender, FileSystemEventArgs e)
         {
+            Log.Information("Begin: Delay between file open and file detection.");
             Task.Delay(1000).Wait();
-
+            Log.Information("End: Delay between file open and file detection.");
             var x = new ConvertToIcal();
-            x.ConverterMain(e);
+
+            try
+            {
+                x.ConverterMain(e);
+                Log.Information("Succeeded: Call to ConverterMain from the directory watcher.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed: Call to ConverterMain from the directory watcher.");
+            }
+            
             
         }
     }
