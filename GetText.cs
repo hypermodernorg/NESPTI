@@ -17,6 +17,7 @@ using iText.Kernel.Pdf.Canvas.Parser.Listener;
 using Microsoft.Win32;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using System.Timers;
+using Common.Logging.Configuration;
 using Serilog;
 
 namespace NESPTI
@@ -214,7 +215,13 @@ namespace NESPTI
                 string outputFileName = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + e.Name.Substring(0, e.Name.Length - 4);
                 File.WriteAllText(outputFileName+ ".ics", serializedCalendar);
 
+                // Move the processed files to the processed folder
+                System.IO.Directory.CreateDirectory(Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + "Processed");
+                string sourceFile = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + e.Name;
+                string destinationFile = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + "Processed" + Path.DirectorySeparatorChar + e.Name;
 
+                // To move a file or folder to a new location:
+                System.IO.File.Move(sourceFile, destinationFile);
                 //saveFileName = openFileDialog.FileName.ToString()
                 //    .Substring(0, openFileDialog.FileName.ToString().Length - 4);
             }
