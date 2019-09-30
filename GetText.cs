@@ -99,6 +99,7 @@ namespace NESPTI
           
             }
 
+            TimeZone(_theText); // Scan the text for a timezone.
             string[] getAllText = new string[] {_theText, saveFileName};
             return getAllText;
         }

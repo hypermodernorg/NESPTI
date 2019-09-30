@@ -15,7 +15,7 @@ namespace NESPTI
 
         public void CreateIcalEvent(string startTime, string endTime, string theDate, string raceTrack, string theEvent, string theSeries)
         {
-            Log.Information("CreateIcalEvent Begin: StartTime:" + startTime + " endTime: " + endTime + " theDate:" + theDate + " raceTrack: " + raceTrack + " theEvent: " + theEvent + " theSeries: " + theSeries);
+            Log.Information("CreateIcalEvent Begin: StartTime:" + startTime + " endTime: " + endTime + " theDate:" + theDate + " raceTrack: " + raceTrack + " theEvent: " + theEvent + " theSeries: " + theSeries + " TimeZone: " + _timeZone);
             Regex theYearRegex = new Regex(@"(\d{4,4})");
             Match theYearMatch = theYearRegex.Match(raceTrack);
 
