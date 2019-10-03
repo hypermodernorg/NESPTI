@@ -20,6 +20,8 @@ namespace NESPTI
             Match theYearMatch = theYearRegex.Match(raceTrack);
 
             var now = DateTime.Parse(theDate + " " + theYearMatch + " " + startTime);
+            var later = new DateTime(); // 20191002 check if breaks - delete declaration if breaks
+            var laterStr = "";
 
 
 
@@ -34,8 +36,13 @@ namespace NESPTI
 
             if (endTime != "")
             {
-                var later = DateTime.Parse(theDate + " " + theYearMatch + " " + endTime);
+                later = DateTime.Parse(theDate + " " + theYearMatch + " " + endTime); // 20191002 check if breaks  - redo var if breaks
                 e.End = new CalDateTime(later, _timeZone);
+                laterStr = later.ToString();
+            }
+            else
+            {
+                laterStr = "";
             }
 
             if (theEvent.Contains("GARAGE OPEN") || theEvent.Contains("GARAGE CLOSE"))
@@ -43,6 +50,9 @@ namespace NESPTI
                 e.End = new CalDateTime(now.AddMinutes(15), _timeZone);
             }
 
+            //FILENAME, DATE, START, END, TRACK, EVENT, SERIES, TIMEZONE, YEAR
+           
+            AddEvents(_fileName, theDate, now.ToString(), laterStr, raceTrack, theEvent, theSeries, theYearMatch.ToString());
             _calendar.Events.Add(e);
 
         }

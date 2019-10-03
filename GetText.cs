@@ -28,6 +28,7 @@ namespace NESPTI
         static Calendar _calendar = new Calendar();
         private static string _timeZone = "";
         private static string _theText = "";
+        private static string _fileName = ""; // added to send to db.
 
 
         // Get all the text.
@@ -76,6 +77,8 @@ namespace NESPTI
                     Log.Error(ex, "There was most likely no file selected.");
                
                 }
+
+                _fileName = "";
             }
 
             // If the window is not visible, then automatically check for new files.
@@ -96,7 +99,9 @@ namespace NESPTI
                 Log.Information("End page by page text extraction.");
 
                 saveFileName = e.FullPath.Substring(0, e.FullPath.Length - 4);
-          
+                _fileName = e.Name;
+                DeleteEvents(_fileName); // delete any existing records with this filename and prepare to replace.
+
             }
 
             TimeZone(_theText); // Scan the text for a timezone.
@@ -221,14 +226,23 @@ namespace NESPTI
                 string sourceFile = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + e.Name;
                 string destinationFile = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + "Processed" + Path.DirectorySeparatorChar + e.Name;
 
-                // To move a file or folder to a new location:
-                System.IO.File.Move(sourceFile, destinationFile);
-                //saveFileName = openFileDialog.FileName.ToString()
-                //    .Substring(0, openFileDialog.FileName.ToString().Length - 4);
+                // If processed file already exist in processed folder, append an indicator to the number of updates to the filename.
+                var i = 0;
+                while (File.Exists(destinationFile))
+                {
+                    i++;
+                    var destFileString = destinationFile.Substring(0, destinationFile.Length - 4) + "-" +i;
+                    destinationFile = destFileString + ".pdf";
+                }
+                if (!File.Exists(destinationFile))
+                {
+                    System.IO.File.Move(sourceFile, destinationFile);
+                }
             }
           
             _calendar.Dispose();
         }
+
         // get the number of pages
         public int NumberOfPages(string filename)
         {
