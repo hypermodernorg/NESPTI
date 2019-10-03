@@ -12,20 +12,22 @@ namespace NESPTI
     public partial class MainWindow
     {
 
-        // The program's main components are divided into four main parts:
+        // The program's main components are divided into five main parts:
         // 1. GetText.cs            -- Extract the text from the pdf using the iText library.
         // 2. ProcessText.cs        -- Process the extracted text and prepare to pass to the calendar using program logic and regex.
         // 3. CreateEvent.cs        -- Create an event from the variables collected from ProcessText.cs using the iCal.net library. 
         // 4. NewFileDetector.cs    -- Detect new files and process.
+        // 5. DB.cs                 -- Database read, write, and delete methods. 
         // -- Misc                  -- Settings are currently defined here.
         // -- App.xaml.css          -- Create system tray icon. Depending on research, tie the file listeners to processes 1-3 here.
         // -- Log.cs                -- Serilog logging system.
 
 
-        // Todo:    1. Run via command line with flags.
-        // Todo:    2. Handle calendar updates.
-        // Todo:    3. Generate log file
-        // Todo:    4. Installer
+        // Todo:    1. Run via command line with flags. -- May never happen. Doesn't seem to be needed.
+        // Todo:    2. Handle calendar updates. -- In progress.
+        // Todo:    3. Export master calendar.
+        // Todo:    4. Potentially add options to export calendar by series.
+
 
         public MainWindow()
         {
