@@ -129,7 +129,7 @@ namespace NESPTI
                 Match match2 = filter2.Match(line);
 
 
-                if (!match1.Success && !match2.Success)
+                if (!match1.Success && !match2.Success && !line.ToUpper().Contains("CANCELED"))
                 {
                     lessLines.Add(line);
                     Log.Information("Lesslines: Not eliminated: " + line.ToString());
@@ -139,7 +139,31 @@ namespace NESPTI
             return lessLines;
         }
 
+        // Remove the (T) from the filename.
+        // May change to regex to remove anything between the () as the () is irrelevant for our purposes.
+        public string FileName()
+        {
+
+            Regex filter1 = new Regex(@"(\(.*\))");
+            string fileName = _fileName.ToUpper();
+            Log.Information("Method FileName: Before: " + fileName);
+            Match match1 = filter1.Match(fileName);
+
+            // if the filename contains a (), delete it and everything inside it.
+            if (match1.Success)
+            {
+                fileName = fileName.Replace(match1.Groups[1].ToString(), "");
+            }
+
+            Log.Information("Method FileName: After: " + fileName);
+
+            return fileName;
+        }
+
+
+
         //sourcePath
+
 
     }
 }

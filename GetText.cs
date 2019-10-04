@@ -78,7 +78,7 @@ namespace NESPTI
                
                 }
 
-                _fileName = "";
+                _fileName = ""; // Just in case.
             }
 
             // If the window is not visible, then automatically check for new files.
@@ -100,7 +100,8 @@ namespace NESPTI
 
                 saveFileName = e.FullPath.Substring(0, e.FullPath.Length - 4);
                 _fileName = e.Name;
-                DeleteEvents(_fileName); // delete any existing records with this filename and prepare to replace.
+                string fileName = FileName();
+                DeleteEvents(fileName); // delete any existing records with this filename and prepare to replace.
 
             }
 
@@ -116,7 +117,7 @@ namespace NESPTI
             _theText = getAllText[0];
             string saveFileName = getAllText[1];
             string raceTrack = "";
-
+            string fileName = FileName();
 
             // Split the string by lines into a list of string.
             List<string> lines = _theText.Split(
@@ -137,7 +138,6 @@ namespace NESPTI
             foreach (List<string> oneDay in allDays)
             {
                 var theDate = oneDay[0];
-                //nesTextBox.AppendText("\n" + theDate + "\n");
 
                 foreach (string oneDayLine in oneDay)
                 {
@@ -164,28 +164,58 @@ namespace NESPTI
                                 theSeries = masterMatch.Groups[5].ToString();
                                 theEvent = masterMatch.Groups[7].ToString();
 
+                                // Begin attempt to account for multiple events
+
+                                Array theSeriesArr = theSeries.Split(',');
+
+                                foreach (string individualSeries in theSeriesArr)
+                                {
+                                    theSeries = individualSeries.Trim();
+                                    // This handles the case where the endtime is enclosed in parentheses. 
+                                    // Parentheses in the endtime simply indicates the start time in eastern standard time, and can be discarded.
+                                    if (masterMatch.Groups[3].ToString().Contains("("))
+                                    {
+                                        endTime = "";
+                                    }
+
+                                    //nesTextBox.AppendText(startTime + endTime + "\t\t" + theSeries + "\t\t" + theEvent + "\n");
+                                    if (oneDayLine.Contains("GARAGE OPEN"))
+                                    {
+                                        CreateIcalEvent(startTime, "", theDate, raceTrack, theEvent, theSeries);
+
+                                        if (endTime != "") // If the GARAGE OPEN even contains an endTime;
+                                        {
+                                            CreateIcalEvent(endTime, "", theDate, raceTrack, "GARAGE CLOSES", theSeries);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
+                                    }
+                                }
+
 
                                 // This handles the case where the endtime is enclosed in parentheses. 
                                 // Parentheses in the endtime simply indicates the start time in eastern standard time, and can be discarded.
-                                if (masterMatch.Groups[3].ToString().Contains("("))
-                                {
-                                    endTime = "";
-                                }
+                                //if (masterMatch.Groups[3].ToString().Contains("("))
+                                //{
+                                //    endTime = "";
+                                //}
 
-                                //nesTextBox.AppendText(startTime + endTime + "\t\t" + theSeries + "\t\t" + theEvent + "\n");
-                                if (oneDayLine.Contains("GARAGE OPEN"))
-                                {
-                                    CreateIcalEvent(startTime, "", theDate, raceTrack, theEvent, theSeries);
+                                ////nesTextBox.AppendText(startTime + endTime + "\t\t" + theSeries + "\t\t" + theEvent + "\n");
+                                //if (oneDayLine.Contains("GARAGE OPEN"))
+                                //{
+                                //    CreateIcalEvent(startTime, "", theDate, raceTrack, theEvent, theSeries);
 
-                                    if (endTime != "") // If the GARAGE OPEN even contains an endTime;
-                                    {
-                                        CreateIcalEvent(endTime, "", theDate, raceTrack, "GARAGE CLOSES", theSeries);
-                                    }
-                                }
-                                else
-                                {
-                                    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
-                                }
+                                //    if (endTime != "") // If the GARAGE OPEN even contains an endTime;
+                                //    {
+                                //        CreateIcalEvent(endTime, "", theDate, raceTrack, "GARAGE CLOSES", theSeries);
+                                //    }
+                                //}
+                                //else
+                                //{
+                                //    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
+                                //}
                             }
                         }
                     }
@@ -193,15 +223,12 @@ namespace NESPTI
             }
 
             _calendar.AddProperty("X-WR-CALNAME", raceTrack);
-            //_calendar.AddTimeZone(new VTimeZone("America/New_York"));
+      
 
             var serializer = new CalendarSerializer();
             var serializedCalendar = serializer.SerializeToString(_calendar);
 
-            //nesTextBox.AppendText(serializedCalendar);
 
-            //string saveFileName = openFileDialog.FileName.ToString()
-            //    .Substring(0, openFileDialog.FileName.ToString().Length - 4);
 
             if (e == null)
             {
@@ -224,7 +251,7 @@ namespace NESPTI
                 // Move the processed files to the processed folder
                 System.IO.Directory.CreateDirectory(Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + "Processed");
                 string sourceFile = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + e.Name;
-                string destinationFile = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + "Processed" + Path.DirectorySeparatorChar + e.Name;
+                string destinationFile = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + "Processed" + Path.DirectorySeparatorChar + fileName.ToUpper();
 
                 // If processed file already exist in processed folder, append an indicator to the number of updates to the filename.
                 var i = 0;

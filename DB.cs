@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using Serilog;
 
 namespace NESPTI
 {
@@ -24,7 +22,7 @@ namespace NESPTI
         // Get all the events in the database
         public DataTable GetEvents()
         {
-            Task.Delay(500).Wait();
+            Task.Delay(50).Wait();
             SQLiteConnection conn = Connect(); // connect to the database
             SQLiteCommand sqliteCmd = conn.CreateCommand();
             sqliteCmd.CommandText = "SELECT ID, FILENAME, DATE, START, END, TRACK, EVENT, SERIES, TIMEZONE, YEAR FROM EVENTS";
@@ -36,40 +34,42 @@ namespace NESPTI
         }
 
         // Method to check if filename already exist in the calendar.
-        public DataTable CheckForFilename(string fileName)
-        {
-            SQLiteConnection conn = Connect(); // connect to the database
-            SQLiteCommand sqliteCmd = conn.CreateCommand();
-            sqliteCmd.CommandText = $"SELECT ID, FILENAME FROM EVENTS WHERE FILENAME = {fileName}"; 
-            SQLiteDataAdapter dt = new SQLiteDataAdapter(sqliteCmd);
-            DataTable calEvents = new DataTable();
-            dt.Fill(calEvents);
-            conn.Close(); // close database connection
-            return calEvents;
-        }
+        // Method will most likely be needed since we are going with the remove/replace strategy instead of the update strategy.
+        //public DataTable CheckForFilename(string fileName)
+        //{
+        //    SQLiteConnection conn = Connect(); // connect to the database
+        //    SQLiteCommand sqliteCmd = conn.CreateCommand();
+        //    sqliteCmd.CommandText = $"SELECT ID, FILENAME FROM EVENTS WHERE FILENAME = {fileName}"; 
+        //    SQLiteDataAdapter dt = new SQLiteDataAdapter(sqliteCmd);
+        //    DataTable calEvents = new DataTable();
+        //    dt.Fill(calEvents);
+        //    conn.Close(); // close database connection
+        //    return calEvents;
+        //}
 
         // Method to delete the old events and replace with new.
         public void DeleteEvents(string fileName)
         {
-            Task.Delay(500).Wait();
+            Task.Delay(50).Wait();
             SQLiteConnection conn = Connect();
             SQLiteCommand sqliteCmd = conn.CreateCommand();
             sqliteCmd.CommandText = $"DELETE FROM EVENTS WHERE FILENAME = '{fileName}'";
             sqliteCmd.ExecuteNonQuery();
+            Log.Information("Database: Delete records with the filename: " + fileName);
             conn.Close();
         }
 
-        // Method to write new or updated events
+        // Method to write new or updated events. Called in a loop to add events one by one.
         public void AddEvents(string fileName, string theDate, string now, string later, string raceTrack, string theEvent, string theSeries, string theYearMatch) // all the data parameters here
         {
-            Task.Delay(100).Wait();
-            // Probably will be called in a loop to add events one by one
+            Task.Delay(10).Wait();
             SQLiteConnection conn = Connect();
             SQLiteCommand sqliteCmd = conn.CreateCommand();
 
             //AddEvents(fileName, theDate, now.ToString(), later, raceTrack, theEvent, theSeries,_timezone, theYearMatch);
             sqliteCmd.CommandText = $"INSERT INTO EVENTS (FILENAME, DATE, START, END, TRACK, EVENT, SERIES, TIMEZONE, YEAR) VALUES ('{fileName}', '{theDate}', '{now}', '{later}', '{raceTrack}', '{theEvent}', '{theSeries}', '{_timeZone}', '{theYearMatch}')";
             sqliteCmd.ExecuteNonQuery();
+            Log.Information("Database Write: " + fileName + "|" + theDate + "|" + now + "|" + later + "|" + raceTrack + "|" + theEvent + "|" + theSeries + "|" + _timeZone + "|" + theYearMatch);
             conn.Close();
         }
 

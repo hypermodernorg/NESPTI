@@ -20,11 +20,8 @@ namespace NESPTI
             Match theYearMatch = theYearRegex.Match(raceTrack);
 
             var now = DateTime.Parse(theDate + " " + theYearMatch + " " + startTime);
-            var later = new DateTime(); // 20191002 check if breaks - delete declaration if breaks
+            var later = new DateTime(); // 20191002 check if breaks - delete declaration if breaks and initialize below.
             var laterStr = "";
-
-
-
 
             var e = new CalendarEvent
             {
@@ -33,10 +30,9 @@ namespace NESPTI
                 Description = raceTrack + " | " + ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent),
             };
 
-
             if (endTime != "")
             {
-                later = DateTime.Parse(theDate + " " + theYearMatch + " " + endTime); // 20191002 check if breaks  - redo var if breaks
+                later = DateTime.Parse(theDate + " " + theYearMatch + " " + endTime); // 20191002 check if breaks  - initialize here if breaks
                 e.End = new CalDateTime(later, _timeZone);
                 laterStr = later.ToString();
             }
@@ -51,11 +47,13 @@ namespace NESPTI
             }
 
             //FILENAME, DATE, START, END, TRACK, EVENT, SERIES, TIMEZONE, YEAR
-           
-            AddEvents(_fileName, theDate, now.ToString(), laterStr, raceTrack, theEvent, theSeries, theYearMatch.ToString());
+            string fileName = FileName();
+            AddEvents(fileName, theDate, now.ToString(), laterStr, raceTrack, theEvent, theSeries, theYearMatch.ToString());
             _calendar.Events.Add(e);
 
         }
+
+        
 
 
     }

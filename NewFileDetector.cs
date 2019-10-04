@@ -36,7 +36,7 @@ namespace NESPTI
             if (_watcher.EnableRaisingEvents)
             {
                 MessageBox.Show("Already Monitoring New Events");
-                Log.Information("User asked to directory monitor, but the monitor is already active.");
+                Log.Information("User asked for the directory monitor, but the monitor is already active.");
             }
 
             if (_watcher.EnableRaisingEvents == false)
@@ -49,10 +49,9 @@ namespace NESPTI
                 _watcher.Filter = "*.pdf";
 
                 //Add event handlers.
-                //watcher.Changed += OnChanged;
+   
                 _watcher.Created += OnChanged;
-                //watcher.Deleted += OnChanged;
-
+  
                 //Begin watching.
                 _watcher.EnableRaisingEvents = true;
                 MessageBox.Show("Now Monitoring New Events");
