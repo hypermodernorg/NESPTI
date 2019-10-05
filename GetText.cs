@@ -268,6 +268,8 @@ namespace NESPTI
             }
           
             _calendar.Dispose();
+            ExportMasterCalender();
+     
         }
 
         // get the number of pages
