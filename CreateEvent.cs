@@ -16,7 +16,7 @@ namespace NESPTI
 {
     public partial class ConvertToIcal
     {
-        static Calendar _masterCalendar = new Calendar();
+        
 
         public void CreateIcalEvent(string startTime, string endTime, string theDate, string raceTrack, string theEvent, string theSeries)
         {
@@ -60,15 +60,18 @@ namespace NESPTI
 
         public void ExportMasterCalender()
         {
+
+            Calendar masterCalendar = new Calendar();
+
             Log.Information("ExportMasterCalendar Called");
             DataTable allEvents = GetEvents(); // From DB.cs
-            var e = new CalendarEvent();
+           
             string theYear = "";
 
             // Go through all the events in the database
             foreach (DataRow eventsRow in allEvents.Rows)
             {
-               
+                var e = new CalendarEvent();
                 // store the row columns in variables
                 string fileName = eventsRow["FILENAME"].ToString();
                 string theDate = eventsRow["DATE"].ToString();
@@ -102,14 +105,14 @@ namespace NESPTI
                 }
 
 
-                _masterCalendar.Events.Add(e); // add event to the master calendar.
+                masterCalendar.Events.Add(e); // add event to the master calendar.
 
 
 
             }
-            _masterCalendar.AddProperty("X-WR-CALNAME", "Master NASCAR Event Schedule");
+            masterCalendar.AddProperty("X-WR-CALNAME", "Master NASCAR Event Schedule");
             var serializer = new CalendarSerializer();
-            var serializedCalendar = serializer.SerializeToString(_masterCalendar);
+            var serializedCalendar = serializer.SerializeToString(masterCalendar);
             string outputFileName = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + " Master NASCAR Event Schedule";
             try
             {
@@ -119,7 +122,7 @@ namespace NESPTI
             {
                 Log.Error("Error while writing master calendar file: " + ex);
             }
-
+            masterCalendar.Dispose();
         }
     }
 }

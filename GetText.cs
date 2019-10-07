@@ -193,29 +193,6 @@ namespace NESPTI
                                         CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
                                     }
                                 }
-
-
-                                // This handles the case where the endtime is enclosed in parentheses. 
-                                // Parentheses in the endtime simply indicates the start time in eastern standard time, and can be discarded.
-                                //if (masterMatch.Groups[3].ToString().Contains("("))
-                                //{
-                                //    endTime = "";
-                                //}
-
-                                ////nesTextBox.AppendText(startTime + endTime + "\t\t" + theSeries + "\t\t" + theEvent + "\n");
-                                //if (oneDayLine.Contains("GARAGE OPEN"))
-                                //{
-                                //    CreateIcalEvent(startTime, "", theDate, raceTrack, theEvent, theSeries);
-
-                                //    if (endTime != "") // If the GARAGE OPEN even contains an endTime;
-                                //    {
-                                //        CreateIcalEvent(endTime, "", theDate, raceTrack, "GARAGE CLOSES", theSeries);
-                                //    }
-                                //}
-                                //else
-                                //{
-                                //    CreateIcalEvent(startTime, endTime, theDate, raceTrack, theEvent, theSeries);
-                                //}
                             }
                         }
                     }
@@ -246,7 +223,7 @@ namespace NESPTI
             if (e != null)
             {
                 string outputFileName = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + e.Name.Substring(0, e.Name.Length - 4);
-                File.WriteAllText(outputFileName+ ".ics", serializedCalendar);
+                //File.WriteAllText(outputFileName+ ".ics", serializedCalendar);
 
                 // Move the processed files to the processed folder
                 System.IO.Directory.CreateDirectory(Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + "Processed");

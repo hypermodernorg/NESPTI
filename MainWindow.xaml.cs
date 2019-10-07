@@ -25,7 +25,7 @@ namespace NESPTI
 
         // Todo:    1. Run via command line with flags. -- May never happen. Doesn't seem to be needed.
         // Todo:    2. Handle calendar database updates. -- Completed - needs testing.
-        // Todo:    3. Export master calendar.
+        // Todo:    3. Export master calendar. -- In progress.
         // Todo:    4. Potentially add options to export calendar by series.
         // Todo:    5. Handle the canceled event.... event. - Todo added 20191003 after Aaron noticed a cancelled event in the pdf. -- Completed
         // Todo:    6. Check to see if the "many from one" events are still correct, such as: -- 20191003 - Completed but needs testing.
