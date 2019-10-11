@@ -1,5 +1,7 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using Serilog;
 
@@ -22,16 +24,12 @@ namespace NESPTI
         // -- App.xaml.css          -- Create system tray icon. Depending on research, tie the file listeners to processes 1-3 here.
         // -- Log.cs                -- Serilog logging system.
 
-
-        // Todo:    1. Run via command line with flags. -- May never happen. Doesn't seem to be needed.
-        // Todo:    2. Handle calendar database updates. -- Completed - needs testing.
-        // Todo:    3. Export master calendar. -- In progress.
-        // Todo:    4. Potentially add options to export calendar by series.
-        // Todo:    5. Handle the canceled event.... event. - Todo added 20191003 after Aaron noticed a cancelled event in the pdf. -- Completed
-        // Todo:    6. Check to see if the "many from one" events are still correct, such as: -- 20191003 - Completed but needs testing.
-        // Todo:        -- Garage open and close. -- still seems to work.
-        // Todo:        -- Two series listed on the same event. -- Non issue? 20191003 -- Fixed, multiple series per event now create an event per series.
-
+        // Todo     1. Timezone information invalidates without vtimezone definitions. If possible, fix it.
+        // Todo     -- Research: https://github.com/rianjs/ical.net/issues/266
+        // Todo     -- Research: https://github.com/rianjs/ical.net/blob/master/v2/ical.NET/Components/VTimeZoneInfo.cs
+        // Todo     -- Research: https://icalendar.org/iCalendar-RFC-5545/3-6-5-time-zone-component.html
+        // Todo:    2. Potentially add options to export calendar by series.
+        // Todo:    3. Add user setting to choose year to export master calendar.
 
         public MainWindow()
         {
@@ -105,6 +103,17 @@ namespace NESPTI
                     Properties.Settings.Default.Save();
                     outputLbl.Content = fldrDlg.SelectedPath.ToString();
                 }
+            }
+        }
+
+        // Get year from user input and detect when the input is 4 digits, and is a number.
+        private void YearTxt_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            String yearStr = yearTxt.Text;
+            if (yearStr.Length == 4 && Regex.IsMatch(yearStr, @"^\d+$"))
+            {
+                var x = new ConvertToIcal();
+                x.ExportMasterCalender(yearStr);
             }
         }
     }

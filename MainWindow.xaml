@@ -30,6 +30,8 @@
         <Label x:Name="inputLbl" Content="Input:" Grid.Row="2" Foreground="White" Background="#FF163A49" Grid.Column="2"/>
         <Label x:Name="outputLbl" Content="Output:" Grid.Row="4" Foreground="White" Background="#FF163A49" MinHeight="28" Grid.Column="2"  x:FieldModifier="public"/>
         <Label x:Name="openNesLbl" Content="" Foreground="White" Background="#FF163A49" Grid.Column="1"/>
+        <Label x:Name="outputLbl_Copy" Content="Year to export:" Grid.Row="6" Foreground="White" Background="#FF163A49" MinHeight="28" Grid.Column="1"  x:FieldModifier="public" Margin="0,0,0,0.333"/>
+        <TextBox x:Name="yearTxt" Controls:TextBoxHelper.Watermark="Year, ex: 2019" Controls:TextBoxHelper.ClearTextButton="True"  Margin="0,0,0,0" Grid.Row="6" Grid.RowSpan="1" UndoLimit="103" Controls:TextBoxHelper.WatermarkAlignment="Justify" Background="White" BorderBrush="White" TextChanged="YearTxt_OnTextChanged" />
     </Grid>
 
     <Controls:MetroWindow.RightWindowCommands>

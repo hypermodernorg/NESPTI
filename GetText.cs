@@ -29,13 +29,14 @@ namespace NESPTI
         private static string _timeZone = "";
         private static string _theText = "";
         private static string _fileName = ""; // added to send to db.
+        private string _currentYear = DateTime.Now.Year.ToString();
 
 
         // Get all the text.
         public string[] GetAllText(FileSystemEventArgs e = null)
         {
             _theText = ""; // Clear the existing text before use.
-            string saveFileName = "";  
+            string saveFileName = "";
 
 
             // Check if the window is visible, if so, get the text this way through user dialogue.
@@ -52,7 +53,7 @@ namespace NESPTI
                 {
                     // Get the number of pages.
                     Log.Information("File opened: " + openFileDialog.FileName.ToString());
-                    var numberOfPages = NumberOfPages(openFileDialog.FileName.ToString()); 
+                    var numberOfPages = NumberOfPages(openFileDialog.FileName.ToString());
                     Log.Information("Number of pages: " + numberOfPages);
 
 
@@ -63,6 +64,7 @@ namespace NESPTI
                         _theText += PageText(i, openFileDialog.FileName.ToString()) + "\n";
                         Log.Information("Extracted page: " + i);
                     }
+
                     Log.Information("End page by page text extraction.");
                 }
 
@@ -70,12 +72,10 @@ namespace NESPTI
                 {
                     saveFileName = openFileDialog.FileName.ToString()
                         .Substring(0, openFileDialog.FileName.ToString().Length - 4);
-               
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex, "There was most likely no file selected.");
-               
                 }
 
                 _fileName = ""; // Just in case.
@@ -96,13 +96,13 @@ namespace NESPTI
                     _theText += PageText(i, e.FullPath) + "\n";
                     Log.Information("Extracted page: " + i);
                 }
+
                 Log.Information("End page by page text extraction.");
 
                 saveFileName = e.FullPath.Substring(0, e.FullPath.Length - 4);
                 _fileName = e.Name;
                 string fileName = FileName();
                 DeleteEvents(fileName); // delete any existing records with this filename and prepare to replace.
-
             }
 
             TimeZone(_theText); // Scan the text for a timezone.
@@ -112,7 +112,6 @@ namespace NESPTI
 
         public void ConverterMain(FileSystemEventArgs e = null)
         {
-           
             string[] getAllText = GetAllText(e);
             _theText = getAllText[0];
             string saveFileName = getAllText[1];
@@ -185,7 +184,8 @@ namespace NESPTI
 
                                         if (endTime != "") // If the GARAGE OPEN even contains an endTime;
                                         {
-                                            CreateIcalEvent(endTime, "", theDate, raceTrack, "GARAGE CLOSES", theSeries);
+                                            CreateIcalEvent(endTime, "", theDate, raceTrack, "GARAGE CLOSES",
+                                                theSeries);
                                         }
                                     }
                                     else
@@ -200,11 +200,10 @@ namespace NESPTI
             }
 
             _calendar.AddProperty("X-WR-CALNAME", raceTrack);
-      
+
 
             var serializer = new CalendarSerializer();
             var serializedCalendar = serializer.SerializeToString(_calendar);
-
 
 
             if (e == null)
@@ -217,43 +216,51 @@ namespace NESPTI
                         (window as MainWindow).openNesLbl.Content = "Created: " + saveFileName + ".ics";
                     }
                 }
-
             }
 
             if (e != null)
             {
-                string outputFileName = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + e.Name.Substring(0, e.Name.Length - 4);
-                //File.WriteAllText(outputFileName+ ".ics", serializedCalendar);
+                Directory.CreateDirectory(Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar +
+                                          "ics_individual");
+                string outputFileName = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar +
+                                        "ics_individual" + Path.DirectorySeparatorChar +
+                                        e.Name.Substring(0, e.Name.Length - 4);
+                File.WriteAllText(outputFileName + ".ics", serializedCalendar);
 
                 // Move the processed files to the processed folder
-                System.IO.Directory.CreateDirectory(Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + "Processed");
+                System.IO.Directory.CreateDirectory(Properties.Settings.Default.outputPath +
+                                                    Path.DirectorySeparatorChar + "processed");
                 string sourceFile = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + e.Name;
-                string destinationFile = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + "Processed" + Path.DirectorySeparatorChar + fileName.ToUpper();
+                string destinationFile = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar +
+                                         "processed" + Path.DirectorySeparatorChar + fileName.ToUpper();
 
                 // If processed file already exist in processed folder, append an indicator to the number of updates to the filename.
                 var i = 0;
                 while (File.Exists(destinationFile))
                 {
                     i++;
-                    var destFileString = destinationFile.Substring(0, destinationFile.Length - 4) + "-" +i;
+                    var destFileString = destinationFile.Substring(0, destinationFile.Length - 4) + "-" + i;
                     destinationFile = destFileString + ".pdf";
                 }
+
                 if (!File.Exists(destinationFile))
                 {
                     System.IO.File.Move(sourceFile, destinationFile);
                 }
             }
-          
+
             _calendar.Dispose();
             ExportMasterCalender();
-     
         }
 
         // get the number of pages
         public int NumberOfPages(string filename)
         {
             int numberOfPages = 0;
-            PdfDocument pdf = new PdfDocument(new PdfReader(filename)); // file access error here -- Solved by adding time between file detection and file open.
+            PdfDocument
+                pdf = new PdfDocument(
+                    new PdfReader(
+                        filename)); // file access error here -- Solved by adding time between file detection and file open.
             numberOfPages = pdf.GetNumberOfPages();
             pdf.Close();
             return numberOfPages;

@@ -54,19 +54,20 @@ namespace NESPTI
             //FILENAME, DATE, START, END, TRACK, EVENT, SERIES, TIMEZONE, YEAR
             string fileName = FileName();
             AddEvents(fileName, theDate, now.ToString(), laterStr, raceTrack, theEvent, theSeries, theYearMatch.ToString());
+
             _calendar.Events.Add(e);
 
         }
 
-        public void ExportMasterCalender()
+        public void ExportMasterCalender(string yearStr = "")
         {
-
+            
             Calendar masterCalendar = new Calendar();
 
             Log.Information("ExportMasterCalendar Called");
-            DataTable allEvents = GetEvents(); // From DB.cs
-           
+            DataTable allEvents = GetEvents(yearStr); // From DB.cs
             string theYear = "";
+         
 
             // Go through all the events in the database
             foreach (DataRow eventsRow in allEvents.Rows)
@@ -110,10 +111,29 @@ namespace NESPTI
 
 
             }
-            masterCalendar.AddProperty("X-WR-CALNAME", "Master NASCAR Event Schedule");
+
+
+            masterCalendar.AddProperty("X-WR-CALNAME", GetYear(yearStr) + " Master NASCAR Event Schedule");
+
+            VTimeZone eastTimeZone = new VTimeZone("America/New_York");
+        
+            var eastInfo = new VTimeZoneInfo();
+            //eastInfo.DtStart = new CalDateTime(DateTime.Now);
+            //eastTimeZone.AddChild(eastInfo);
+            
+            VTimeZone centralTimeZone = new VTimeZone("US/Central");
+            VTimeZone mountainTimeZone = new VTimeZone("America/Denver");
+            VTimeZone westTimeZone = new VTimeZone("US/Pacific");
+
+            masterCalendar.AddTimeZone((eastTimeZone));
+            masterCalendar.AddTimeZone((centralTimeZone));
+            masterCalendar.AddTimeZone((mountainTimeZone));
+            masterCalendar.AddTimeZone((westTimeZone));
+
+
             var serializer = new CalendarSerializer();
             var serializedCalendar = serializer.SerializeToString(masterCalendar);
-            string outputFileName = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + " Master NASCAR Event Schedule";
+            string outputFileName = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar + GetYear(yearStr) + " Master NASCAR Event Schedule";
             try
             {
                 File.WriteAllText(outputFileName + ".ics", serializedCalendar);
@@ -123,6 +143,24 @@ namespace NESPTI
                 Log.Error("Error while writing master calendar file: " + ex);
             }
             masterCalendar.Dispose();
+        }
+
+
+        // Should we get the current year, or a user selected year?
+        public string GetYear(string yearStr = "")
+        {
+            string returnYearStr = "";
+            if (yearStr == "")
+            {
+                returnYearStr = _currentYear;
+            }
+            else
+            {
+                returnYearStr = yearStr;
+            }
+
+
+            return returnYearStr;
         }
     }
 }

@@ -20,32 +20,19 @@ namespace NESPTI
         }
 
         // Get all the events in the database
-        public DataTable GetEvents()
+        public DataTable GetEvents(string yearStr = "")
         {
+           
             Task.Delay(50).Wait();
             SQLiteConnection conn = Connect(); // connect to the database
             SQLiteCommand sqliteCmd = conn.CreateCommand();
-            sqliteCmd.CommandText = "SELECT ID, FILENAME, DATE, START, END, TRACK, EVENT, SERIES, TIMEZONE, YEAR FROM EVENTS";
+            sqliteCmd.CommandText = $"SELECT ID, FILENAME, DATE, START, END, TRACK, EVENT, SERIES, TIMEZONE, YEAR FROM EVENTS WHERE YEAR = '{GetYear(yearStr)}'";
             SQLiteDataAdapter dt = new SQLiteDataAdapter(sqliteCmd);
             DataTable calEvents = new DataTable();
             dt.Fill(calEvents);
             conn.Close(); // close database connection
             return calEvents;
         }
-
-        // Method to check if filename already exist in the calendar.
-        // Method will most likely be needed since we are going with the remove/replace strategy instead of the update strategy.
-        //public DataTable CheckForFilename(string fileName)
-        //{
-        //    SQLiteConnection conn = Connect(); // connect to the database
-        //    SQLiteCommand sqliteCmd = conn.CreateCommand();
-        //    sqliteCmd.CommandText = $"SELECT ID, FILENAME FROM EVENTS WHERE FILENAME = {fileName}"; 
-        //    SQLiteDataAdapter dt = new SQLiteDataAdapter(sqliteCmd);
-        //    DataTable calEvents = new DataTable();
-        //    dt.Fill(calEvents);
-        //    conn.Close(); // close database connection
-        //    return calEvents;
-        //}
 
         // Method to delete the old events and replace with new.
         public void DeleteEvents(string fileName)
