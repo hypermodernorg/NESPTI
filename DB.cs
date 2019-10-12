@@ -13,7 +13,9 @@ namespace NESPTI
         public SQLiteConnection Connect()
         {
             SQLiteConnection conn;
-            string dbDirectory = AppDomain.CurrentDomain.BaseDirectory + "Resources" + Path.DirectorySeparatorChar + "db" + Path.DirectorySeparatorChar + "NESPTI.db";
+            //string dbDirectory = AppDomain.CurrentDomain.BaseDirectory + "database"  + Path.DirectorySeparatorChar + "NESPTI.db";
+            string dbDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                                 Path.DirectorySeparatorChar + "NESPTI" + Path.DirectorySeparatorChar + "NESPTI.db";
             conn = new SQLiteConnection("Data Source=" + dbDirectory + "; Version=3;New=True;Compress=True;");
             conn.Open();
             return conn;

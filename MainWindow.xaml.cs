@@ -1,9 +1,13 @@
 using System;
+using System.IO;
+using System.Net;
+using System.Security.AccessControl;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using Serilog;
+using Application = System.Windows.Application;
 
 
 namespace NESPTI
@@ -37,6 +41,19 @@ namespace NESPTI
             outputLbl.Content = Properties.Settings.Default.outputPath;
             inputLbl.Content = Properties.Settings.Default.inputPath;
             ConvertToIcal.EventLogger();
+            
+            // Check if db exists. If not, copy and paste it.
+            if (!File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + "NESPTI" + Path.DirectorySeparatorChar + "NESPTI.db"  ))
+            {
+                DirectorySecurity securityRules = new DirectorySecurity();
+                Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
+                                          Path.DirectorySeparatorChar + "NESPTI");
+
+                string sourceFile = AppDomain.CurrentDomain.BaseDirectory + Path.DirectorySeparatorChar + "database" + Path.DirectorySeparatorChar + "NESPTI.db";
+                string destFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + "NESPTI" + Path.DirectorySeparatorChar + "NESPTI.db";
+                File.Copy(sourceFile, destFile, true);
+            }
+            Log.Information("DB Location:" +  Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)); 
         }
 
         public void Button_Click(object sender, RoutedEventArgs e)
