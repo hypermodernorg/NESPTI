@@ -78,7 +78,10 @@ namespace NESPTI
                     Log.Error(ex, "There was most likely no file selected.");
                 }
 
-                _fileName = ""; // Just in case.
+            
+                _fileName = Path.GetFileName(openFileDialog.FileName.ToString());
+                string fileName = FileName();
+                DeleteEvents(fileName); // delete any existing records with this filename and prepare to replace.
             }
 
             // If the window is not visible, then automatically check for new files.
@@ -216,6 +219,32 @@ namespace NESPTI
                         (window as MainWindow).openNesLbl.Content = "Created: " + saveFileName + ".ics";
                     }
                 }
+
+                try
+                {
+                    string sourceFile = saveFileName;
+
+                    string destinationFile = Properties.Settings.Default.outputPath + Path.DirectorySeparatorChar +
+                                             "processed" + Path.DirectorySeparatorChar + Path.GetFileName(saveFileName + ".pdf").ToUpper();
+                    var i = 0;
+                    while (File.Exists(destinationFile))
+                    {
+                        i++;
+                        var destFileString = destinationFile.Substring(0, destinationFile.Length - 4) + "-" + i;
+                        destinationFile = destFileString + ".pdf";
+                    }
+
+                    if (!File.Exists(destinationFile))
+                    {
+                        System.IO.File.Move(saveFileName + ".pdf", destinationFile);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Error moving file to processed directory:");
+                }
+
+
             }
 
             if (e != null)
