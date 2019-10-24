@@ -20,7 +20,7 @@ namespace NESPTI
 
         public void CreateIcalEvent(string startTime, string endTime, string theDate, string raceTrack, string theEvent, string theSeries)
         {
-            Log.Information("CreateIcalEvent Begin: StartTime:" + startTime + " endTime: " + endTime + " theDate:" + theDate + " raceTrack: " + raceTrack + " theEvent: " + theEvent + " theSeries: " + theSeries + " TimeZone: " + _timeZone);
+            Log.Information("CreateIcalEvent Begin: StartTime: " + startTime + " endTime: " + endTime + " theDate:" + theDate + " raceTrack: " + raceTrack + " theEvent: " + theEvent + " theSeries: " + theSeries + " TimeZone: " + _timeZone);
             Regex theYearRegex = new Regex(@"(\d{4,4})");
             Match theYearMatch = theYearRegex.Match(raceTrack);
 
@@ -32,7 +32,7 @@ namespace NESPTI
             {
                 Start = new CalDateTime(now, _timeZone),
                 Summary = ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent),
-                Description = raceTrack + " | " + ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent),
+                Description = raceTrack + " | " + ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent) + " | " + "Time before timezone conversion: " + startTime,
             };
 
             if (endTime != "")
@@ -88,7 +88,7 @@ namespace NESPTI
                 e.Start = new CalDateTime(now, timeZone);
                 e.Summary = theSeries + " | " + ChangeSeriesSymbols(theSeries) + " | " + ChangeSeriesSymbols(theEvent);
                 e.Description = raceTrack + " | " + theSeries + " | " + ChangeSeriesSymbols(theSeries) + " | " +
-                                ChangeSeriesSymbols(theEvent);
+                                ChangeSeriesSymbols(theEvent) + " | " + "Time before timezone conversion: " + now.ToString();
           
             
 
