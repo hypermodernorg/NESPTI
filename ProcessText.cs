@@ -44,7 +44,7 @@ namespace NESPTI
                 { "ARCA", "Arca Series" },
                 { "NGOTS", "Truck Series" },
                 { "NXS", "Xfinity Series" },
-                { "MENCS", "Cup Series" }
+                { "NCS", "Cup Series" } // previously "MENCS"
             };
             string theChanged = toChange;
             foreach (KeyValuePair<string, string> entry in seriesDictionary)

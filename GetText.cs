@@ -148,7 +148,7 @@ namespace NESPTI
                     string theEvent;
                     string theSeries;
 
-                    if (oneDayLine.Contains("ARCA") || oneDayLine.Contains("NGOTS") || oneDayLine.Contains("MENCS") ||
+                    if (oneDayLine.Contains("ARCA") || oneDayLine.Contains("NGOTS") || oneDayLine.Contains("NCS") ||
                         oneDayLine.Contains("NXS") || oneDayLine.Contains("MKNPS"))
                     {
                         if (oneDayLine.Contains("PRACTICE") || oneDayLine.Contains("GARAGE OPEN") ||
